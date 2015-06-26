@@ -13,8 +13,23 @@ public class WorldGridScript : MonoBehaviour {
 		tiles = new WorldTileScript[TileCountX, TileCountY];
 	}
 
+	public void TileClicked(WorldTileScript tile)
+	{
+		foreach(WorldTileScript gridTile in tiles)
+		{
+			if(gridTile != tile)
+			{
+				gridTile.Unclick();
+			}
+		}
+	}
+
 	public void AddTile(int x, int y, WorldTileScript tile)
 	{
+		if(tiles == null)
+		{
+			tiles = new WorldTileScript[TileCountX, TileCountY];
+		}
 		tiles[x, y] = tile;
 	}
 

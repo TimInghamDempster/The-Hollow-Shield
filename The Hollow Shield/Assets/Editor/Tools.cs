@@ -14,20 +14,23 @@ public class MenuItems
 		{
 			for (int y = 0; y < grid.TileCountY; y++)
 			{
-				GameObject go = new GameObject("HexTile" + x + y);
-
 				float yPos = y * twoRootThree;
-
+				
 				if(x % 2 == 0)
 				{
 					yPos += twoRootThree / 2.0f;
 				}
 
+				GameObject go = (GameObject)PrefabUtility.InstantiatePrefab(Resources.Load("WorldTile"));
+
 				go.transform.position = new Vector3(x * 1.5f, 0, yPos);
 
-				WorldTileScript tile = go.AddComponent<WorldTileScript>();
+				WorldTileScript tileScript = go.GetComponent<WorldTileScript>();
+				tileScript.worldGrid = grid;
+				tileScript.x = x;
+				tileScript.y = y;
 				
-				grid.AddTile(x, y, tile);
+				grid.AddTile(x, y, tileScript);
 			}
 		}
 	}
