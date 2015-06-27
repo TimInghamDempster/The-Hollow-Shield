@@ -9,6 +9,8 @@ public class WorldTileScript : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+		
+		worldGrid = GameObject.Find("WorldGrid").GetComponent<WorldGridScript>();
 		worldGrid.AddTile(x,y,this);
 	}
 	

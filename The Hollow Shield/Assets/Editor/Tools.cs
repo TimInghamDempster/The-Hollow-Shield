@@ -7,7 +7,6 @@ public class MenuItems
 	private static void NewMenuOption()
 	{
 		WorldGridScript grid = GameObject.Find("WorldGrid").GetComponent<WorldGridScript>();
-		grid.Create();
 
 		float twoRootThree = 1.0f * Mathf.Sqrt(3.0f);
 		for (int x = 0; x < grid.TileCountX; x++)
@@ -26,11 +25,9 @@ public class MenuItems
 				go.transform.position = new Vector3(x * 1.5f, 0, yPos);
 
 				WorldTileScript tileScript = go.GetComponent<WorldTileScript>();
-				tileScript.worldGrid = grid;
+
 				tileScript.x = x;
 				tileScript.y = y;
-				
-				grid.AddTile(x, y, tileScript);
 			}
 		}
 	}

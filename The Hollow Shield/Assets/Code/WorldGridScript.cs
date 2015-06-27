@@ -26,15 +26,12 @@ public class WorldGridScript : MonoBehaviour {
 
 	public void AddTile(int x, int y, WorldTileScript tile)
 	{
-		if(tiles == null)
-		{
-			tiles = new WorldTileScript[TileCountX, TileCountY];
-		}
 		tiles[x, y] = tile;
 	}
 
 	// Use this for initialization
 	void Start () {
+		tiles = new WorldTileScript[TileCountX,TileCountY];
 	}
 	
 	// Update is called once per frame
