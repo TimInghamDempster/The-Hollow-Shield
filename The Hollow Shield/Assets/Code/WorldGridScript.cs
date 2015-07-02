@@ -7,12 +7,23 @@ public class WorldGridScript : MonoBehaviour {
 	public int TileCountX;
 	public int TileCountY;
 
-	WorldTileScript[,] tiles;
-
-	public void Create()
+	public float XBounds
 	{
-		tiles = new WorldTileScript[TileCountX, TileCountY];
+		get
+		{
+			return TileCountX * 1.4f;
+		}
 	}
+
+	public float YBounds
+	{
+		get
+		{
+			return TileCountY * 1.66f;
+		}
+	}
+
+	WorldTileScript[,] tiles;
 
 	public void PostInitialise()
 	{
@@ -103,14 +114,11 @@ public class WorldGridScript : MonoBehaviour {
 		}
 	}
 
-	public void TileClicked(WorldTileScript tile)
+	public void ClearSelection()
 	{
 		foreach(WorldTileScript gridTile in tiles)
 		{
-			if(gridTile != tile)
-			{
-				gridTile.Unclick();
-			}
+			gridTile.Unclick();
 		}
 	}
 

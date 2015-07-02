@@ -21,6 +21,11 @@ public class WorldTileScript : MonoBehaviour {
 	
 	}
 
+	public WorldTileScript[] GetNeighbours()
+	{
+		return m_neighbours;
+	}
+
 	public void SetNeighbours(WorldTileScript[] neighbours)
 	{
 		m_neighbours = new WorldTileScript[neighbours.Length];
@@ -36,10 +41,14 @@ public class WorldTileScript : MonoBehaviour {
 		this.gameObject.GetComponent<Renderer>().material.color = Color.white;
 	}
 
-	void OnMouseDown(){
-		this.gameObject.GetComponent<Renderer>().material.color = Color.blue;
-		worldGrid.TileClicked(this);
+	public void Highlight(Color colour)
+	{
+		this.gameObject.GetComponent<Renderer>().material.color = colour;
 
+	}
+
+	public void HighlightNeighbour()
+	{
 		foreach(WorldTileScript neighbour in m_neighbours)
 		{
 			if(neighbour.IsPassable)
@@ -51,5 +60,23 @@ public class WorldTileScript : MonoBehaviour {
 				neighbour.gameObject.GetComponent<Renderer>().material.color = Color.red;
 			}
 		}
+	}
+
+	public void UnHighlight()
+	{
+		this.gameObject.GetComponent<Renderer>().material.color = Color.white;
+
+		foreach(WorldTileScript neighbour in m_neighbours)
+		{
+			neighbour.gameObject.GetComponent<Renderer>().material.color = Color.white;
+		}
+	}
+
+	void OnMouseDown()
+	{
+
+		worldGrid.ClearSelection();
+		Highlight(Color.blue);
+		HighlightNeighbour();
 	}
 }
