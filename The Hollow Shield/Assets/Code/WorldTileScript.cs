@@ -6,6 +6,7 @@ public class WorldTileScript : MonoBehaviour {
 	public WorldGridScript worldGrid;
 	public int x;
 	public int y;
+	public bool IsPassable = true;
 
 	WorldTileScript[] m_neighbours;
 
@@ -41,7 +42,14 @@ public class WorldTileScript : MonoBehaviour {
 
 		foreach(WorldTileScript neighbour in m_neighbours)
 		{
-			neighbour.gameObject.GetComponent<Renderer>().material.color = Color.green;
+			if(neighbour.IsPassable)
+			{
+				neighbour.gameObject.GetComponent<Renderer>().material.color = Color.green;
+			}
+			else
+			{
+				neighbour.gameObject.GetComponent<Renderer>().material.color = Color.red;
+			}
 		}
 	}
 }
