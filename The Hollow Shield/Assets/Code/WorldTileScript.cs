@@ -14,6 +14,10 @@ public class WorldTileScript : MonoBehaviour {
 	void Start () {
 		worldGrid = GameObject.Find("WorldGrid").GetComponent<WorldGridScript>();
 		worldGrid.AddTile(x,y,this);
+		if(!IsPassable)
+		{
+			this.gameObject.GetComponent<Renderer>().material.color = Color.red;
+		}
 	}
 	
 	// Update is called once per frame

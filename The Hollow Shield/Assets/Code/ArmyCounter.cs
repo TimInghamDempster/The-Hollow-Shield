@@ -12,6 +12,7 @@ public class ArmyCounter : MonoBehaviour {
 	WorldGridScript m_worldGrid;
 	WorldTileScript m_tile;
 	WorldTileScript m_hoverTile;
+	WorldPathPlanner m_pathPlanner;
 
 	float m_xBound;
 	float m_yBound;
@@ -20,6 +21,7 @@ public class ArmyCounter : MonoBehaviour {
 	void Start () {
 		m_transform = this.GetComponent<Transform>();
 		m_worldGrid = GameObject.Find("WorldGrid").GetComponent<WorldGridScript>();
+		m_pathPlanner = this.GetComponent<WorldPathPlanner>();
 
 		m_xBound = m_worldGrid.XBounds;
 		m_yBound = m_worldGrid.YBounds;
@@ -44,12 +46,6 @@ public class ArmyCounter : MonoBehaviour {
 			newPos.z = Mathf.Clamp(newPos.z, 0.0f, m_yBound);
 			newPos.y = HoverPlane;
 
-			if(m_tile)
-			{
-				m_tile.Highlight(Color.blue);
-				m_tile.HighlightNeighbour();
-			}
-
 			RaycastHit tileHit;
 			bool hit = Physics.Raycast(newPos, new Vector3(0.0f, -1.0f, 0.0f), out tileHit, 2.0f * HoverPlane);
 
@@ -60,7 +56,14 @@ public class ArmyCounter : MonoBehaviour {
 				{
 					if(m_hoverTile)
 					{
-						m_hoverTile.gameObject.GetComponent<Renderer>().material.color = Color.white;
+						if(m_hoverTile.IsPassable)
+						{
+							m_hoverTile.gameObject.GetComponent<Renderer>().material.color = Color.white;
+						}
+						else
+						{
+							m_hoverTile.gameObject.GetComponent<Renderer>().material.color = Color.red;
+						}
 					}
 					if(tile.IsPassable)
 					{
@@ -89,22 +92,33 @@ public class ArmyCounter : MonoBehaviour {
 
 				if(m_hoverTile)
 				{
-					m_hoverTile.gameObject.GetComponent<Renderer>().material.color = Color.white;
+					if(m_hoverTile.IsPassable)
+					{
+						m_hoverTile.gameObject.GetComponent<Renderer>().material.color = Color.white;
+					}
+					else
+					{
+						m_hoverTile.gameObject.GetComponent<Renderer>().material.color = Color.red;
+					}
 				}
-				
-				if(m_tile)
-				{
-					m_tile.UnHighlight();
-				}
+
 			}
 		}
+		else
+		{
+			m_pathPlanner.HighlightPath();
+		}
+	}
+
+	void OnMouseExit()
+	{
+		m_pathPlanner.UnHighlightPath();
 	}
 
 	void OnMouseDown()
 	{
 		if(!m_selected)
 		{
-			m_worldGrid.ClearSelection();
 			m_camera = GameObject.Find("FirstPersonCharacter").GetComponent<Camera>();
 			m_positionWhenPickedUp = transform.position;
 			m_selected = true;
@@ -128,37 +142,26 @@ public class ArmyCounter : MonoBehaviour {
 		}
 		else
 		{
+			m_selected = false;
+			m_transform.position = m_positionWhenPickedUp;
+
+			if(m_hoverTile)
+			{
+				if(m_hoverTile.IsPassable)
+				{
+					m_hoverTile.gameObject.GetComponent<Renderer>().material.color = Color.white;
+				}
+				else
+				{
+					m_hoverTile.gameObject.GetComponent<Renderer>().material.color = Color.red;
+				}
+			}
 			
 			if(m_tile &&
 			   m_hoverTile &&
 			   m_hoverTile.IsPassable)
 			{
-				bool neighbour = false;
-
-				WorldTileScript[] neighbours = m_tile.GetNeighbours();
-
-				foreach(WorldTileScript tile in neighbours)
-				{
-					if(m_hoverTile == tile)
-					{
-						neighbour = true;
-					}
-				}
-
-				if(neighbour || m_hoverTile == m_tile)
-				{
-					m_selected = false;
-					Vector3 position = m_transform.position;
-					position.x = m_hoverTile.gameObject.transform.position.x;
-					position.y = m_positionWhenPickedUp.y;
-					position.z = m_hoverTile.gameObject.transform.position.z;
-					m_transform.position = position;
-
-					m_tile.UnHighlight();
-
-					m_hoverTile.gameObject.GetComponent<Renderer>().material.color = Color.white;
-					m_tile = m_hoverTile;
-				}
+				m_pathPlanner.PlanPath(m_tile, m_hoverTile);
 			}
 		}
 	}

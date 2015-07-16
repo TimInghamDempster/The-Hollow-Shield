@@ -3,6 +3,9 @@ using UnityEditor;
 
 public class MenuItems
 {
+	static Material redMaterial;
+	static Material defualtMaterial;
+
 	[MenuItem("Hollow Shield Tools/Create Hex Grid")]
 	private static void NewMenuOption()
 	{
@@ -28,6 +31,48 @@ public class MenuItems
 
 				tileScript.x = x;
 				tileScript.y = y;
+			}
+		}
+	}
+	
+	[MenuItem("Hollow Shield Tools/UpdateTiles")]
+	private static void UpdateTilesMenuOption()
+	{
+		Object[] tiles = GameObject.FindObjectsOfType<WorldTileScript>();
+
+		foreach(object tile in tiles)
+		{
+			WorldTileScript castTile = (WorldTileScript)tile;
+
+			if(!castTile.IsPassable)
+			{
+				if(defualtMaterial == null)
+				{
+					defualtMaterial = castTile.gameObject.GetComponent<Renderer>().sharedMaterial;
+				}
+
+				if(redMaterial == null)
+				{
+					redMaterial = new Material(defualtMaterial);
+					redMaterial.color = Color.red;
+				}
+
+				castTile.gameObject.GetComponent<Renderer>().material = redMaterial;
+			}
+			else
+			{
+				if(defualtMaterial == null)
+				{
+					defualtMaterial = castTile.gameObject.GetComponent<Renderer>().sharedMaterial;
+				}
+				
+				if(redMaterial == null)
+				{
+					redMaterial = new Material(defualtMaterial);
+					redMaterial.color = Color.red;
+				}
+
+				castTile.gameObject.GetComponent<Renderer>().material = defualtMaterial;
 			}
 		}
 	}
