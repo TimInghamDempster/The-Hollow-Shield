@@ -2,10 +2,16 @@
 using System.Collections;
 using System.Collections.Generic;
 
+
 public class WorldGridScript : MonoBehaviour {
+
 
 	public int TileCountX;
 	public int TileCountY;
+
+	public List<FactionScript> m_factions = new List<FactionScript>();
+
+	int m_currentFaction;
 
 	public float XBounds
 	{
@@ -111,6 +117,16 @@ public class WorldGridScript : MonoBehaviour {
 
 				tiles[x,y].SetNeighbours(neighbours.ToArray());
 			}
+		}
+	}
+
+	public void EndTurn ()
+	{
+		if(m_factions[m_currentFaction].TurnEnded)
+		{
+			m_currentFaction++;
+			m_currentFaction %= m_factions.Count;
+			m_factions[m_currentFaction].EndTurn();
 		}
 	}
 

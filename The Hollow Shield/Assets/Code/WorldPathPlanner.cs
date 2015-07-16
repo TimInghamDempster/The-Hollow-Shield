@@ -5,12 +5,22 @@ using System.Collections.Generic;
 public class WorldPathPlanner : MonoBehaviour {
 
 	WorldGridScript worldGrid;
-	List<WorldTileScript> path;
+	List<WorldTileScript> m_path;
+
+	public int DistanceAlongPath {get;set;}
+
+	public List<WorldTileScript> Path
+	{
+		get
+		{
+			return m_path;
+		}
+	}
 
 	// Use this for initialization
 	void Start () {
 		worldGrid = GameObject.Find("WorldGrid").GetComponent<WorldGridScript>();
-		path = new List<WorldTileScript>();
+		m_path = new List<WorldTileScript>();
 	}
 
 	public void PlanPath(WorldTileScript start, WorldTileScript destination)
@@ -42,15 +52,16 @@ public class WorldPathPlanner : MonoBehaviour {
 				UnHighlightPath();
 
 				// found so copy the path:
-				path.Clear();
+				m_path.Clear();
+				DistanceAlongPath = 0;
 				WorldTileScript pathHead = start;
 				while(true)
 				{
-					path.Add(pathHead);
+					m_path.Add(pathHead);
 					pathHead = parent[pathHead.x, pathHead.y];
 					if(pathHead == destination)
 					{
-						path.Add(pathHead);
+						m_path.Add(pathHead);
 						break;
 					}
 				}
@@ -121,7 +132,7 @@ public class WorldPathPlanner : MonoBehaviour {
 
 	public void HighlightPath()
 	{
-		foreach(WorldTileScript tile in path)
+		foreach(WorldTileScript tile in m_path)
 		{
 			tile.gameObject.GetComponent<Renderer>().material.color = Color.yellow;
 		}
@@ -129,7 +140,7 @@ public class WorldPathPlanner : MonoBehaviour {
 
 	public void UnHighlightPath()
 	{
-		foreach(WorldTileScript tile in path)
+		foreach(WorldTileScript tile in m_path)
 		{
 			tile.gameObject.GetComponent<Renderer>().material.color = Color.white;
 		}

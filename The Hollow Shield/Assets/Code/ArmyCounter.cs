@@ -7,24 +7,38 @@ public class ArmyCounter : MonoBehaviour {
 
 	Camera m_camera;
 	bool m_selected;
-	Transform m_transform;
 	Vector3 m_positionWhenPickedUp;
 	WorldGridScript m_worldGrid;
 	WorldTileScript m_tile;
+
+	WorldTileScript m_targetTile;
+
 	WorldTileScript m_hoverTile;
 	WorldPathPlanner m_pathPlanner;
 
 	float m_xBound;
 	float m_yBound;
 
+	Vector3 m_targetPos;
+	public float Speed;
+
+	public bool TurnEnded
+	{
+		get
+		{
+			return m_targetPos == transform.position;
+		}
+	}
+
 	// Use this for initialization
 	void Start () {
-		m_transform = this.GetComponent<Transform>();
 		m_worldGrid = GameObject.Find("WorldGrid").GetComponent<WorldGridScript>();
 		m_pathPlanner = this.GetComponent<WorldPathPlanner>();
 
 		m_xBound = m_worldGrid.XBounds;
 		m_yBound = m_worldGrid.YBounds;
+
+		m_targetPos = transform.position;
 	}
 	
 	// Update is called once per frame
@@ -77,7 +91,46 @@ public class ArmyCounter : MonoBehaviour {
 				}
 			}
 
-			m_transform.position = newPos;
+			transform.position = newPos;
+		}
+		else
+		{
+			if(transform.position != m_targetPos)
+			{
+				Vector3 delta = m_targetPos - transform.position;
+				float deltaDist = delta.magnitude;
+
+				if(deltaDist > Speed)
+				{
+					delta.Normalize();
+					delta *= Speed;
+				}
+				else
+				{
+					m_tile = m_targetTile;
+				}
+				
+				transform.position += delta;
+			}
+		}
+	}
+
+	public void BeginEndTurn()
+	{
+		if(m_pathPlanner.Path.Count > 1)
+		{
+			if(m_pathPlanner.DistanceAlongPath < m_pathPlanner.Path.Count - 1)
+			{
+				m_pathPlanner.DistanceAlongPath++;
+
+				m_targetPos = m_pathPlanner.Path[m_pathPlanner.DistanceAlongPath].transform.position;
+				m_targetPos.y = transform.position.y;
+				m_targetTile = m_pathPlanner.Path[m_pathPlanner.DistanceAlongPath];
+			}
+			else
+			{
+				m_pathPlanner.Path.Clear();
+			}
 		}
 	}
 
@@ -88,7 +141,7 @@ public class ArmyCounter : MonoBehaviour {
 			if(m_selected)
 			{
 				m_selected = false;
-				m_transform.position = m_positionWhenPickedUp;
+				transform.position = m_positionWhenPickedUp;
 
 				if(m_hoverTile)
 				{
@@ -143,7 +196,7 @@ public class ArmyCounter : MonoBehaviour {
 		else
 		{
 			m_selected = false;
-			m_transform.position = m_positionWhenPickedUp;
+			transform.position = m_positionWhenPickedUp;
 
 			if(m_hoverTile)
 			{
