@@ -4,6 +4,7 @@ using System.Collections;
 public class ArmyCounter : MonoBehaviour {
 
 	public float HoverPlane;
+	public FactionScript Faction;
 
 	Camera m_camera;
 	bool m_selected;
@@ -22,6 +23,14 @@ public class ArmyCounter : MonoBehaviour {
 	Vector3 m_targetPos;
 	public float Speed;
 
+	public bool HasPath 
+	{
+		get
+		{
+			return m_pathPlanner.Path != null && m_pathPlanner.DistanceAlongPath < m_pathPlanner.Path.Count;
+		}
+	}
+
 	public bool TurnEnded
 	{
 		get
@@ -39,6 +48,20 @@ public class ArmyCounter : MonoBehaviour {
 		m_yBound = m_worldGrid.YBounds;
 
 		m_targetPos = transform.position;
+
+		this.gameObject.GetComponent<Renderer>().material.color = Faction.FactionColor;
+
+		RaycastHit tileHit;
+		bool hit = Physics.Raycast(transform.position, new Vector3(0.0f, -1.0f, 0.0f), out tileHit, 2.0f * HoverPlane);
+		
+		if(hit)
+		{
+			WorldTileScript tile = tileHit.collider.gameObject.GetComponent<WorldTileScript>();
+			if(tile)
+			{				
+				m_tile = tile;
+			}
+		}
 	}
 	
 	// Update is called once per frame
@@ -72,21 +95,15 @@ public class ArmyCounter : MonoBehaviour {
 					{
 						if(m_hoverTile.IsPassable)
 						{
-							m_hoverTile.gameObject.GetComponent<Renderer>().material.color = Color.white;
-						}
-						else
-						{
-							m_hoverTile.gameObject.GetComponent<Renderer>().material.color = Color.red;
+							m_hoverTile.UnHighlight();
 						}
 					}
+
 					if(tile.IsPassable)
 					{
-						tile.gameObject.GetComponent<Renderer>().material.color = Color.yellow;
+						tile.Highlight();
 					}
-					else
-					{
-						tile.gameObject.GetComponent<Renderer>().material.color = Color.red;
-					}
+
 					m_hoverTile = tile;
 				}
 			}
@@ -107,12 +124,22 @@ public class ArmyCounter : MonoBehaviour {
 				}
 				else
 				{
+					if(m_tile)
+					{
+						m_tile.ArmyExit(this);
+					}
 					m_tile = m_targetTile;
+					m_tile.ArmyEnter(this);
 				}
 				
 				transform.position += delta;
 			}
 		}
+	}
+
+	public void SetObjective(WorldTileScript objectiveTile)
+	{
+		m_pathPlanner.PlanPath(m_tile, objectiveTile);
 	}
 
 	public void BeginEndTurn()
@@ -147,11 +174,7 @@ public class ArmyCounter : MonoBehaviour {
 				{
 					if(m_hoverTile.IsPassable)
 					{
-						m_hoverTile.gameObject.GetComponent<Renderer>().material.color = Color.white;
-					}
-					else
-					{
-						m_hoverTile.gameObject.GetComponent<Renderer>().material.color = Color.red;
+						m_hoverTile.UnHighlight();
 					}
 				}
 
@@ -159,7 +182,10 @@ public class ArmyCounter : MonoBehaviour {
 		}
 		else
 		{
-			m_pathPlanner.HighlightPath();
+			if(!m_selected)
+			{
+				m_pathPlanner.HighlightPath();
+			}
 		}
 	}
 
@@ -202,11 +228,7 @@ public class ArmyCounter : MonoBehaviour {
 			{
 				if(m_hoverTile.IsPassable)
 				{
-					m_hoverTile.gameObject.GetComponent<Renderer>().material.color = Color.white;
-				}
-				else
-				{
-					m_hoverTile.gameObject.GetComponent<Renderer>().material.color = Color.red;
+					m_hoverTile.UnHighlight();
 				}
 			}
 			

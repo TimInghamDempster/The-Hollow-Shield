@@ -9,11 +9,18 @@ public class WorldTileScript : MonoBehaviour {
 	public bool IsPassable = true;
 
 	WorldTileScript[] m_neighbours;
+	public FactionScript Faction;
+
+	bool m_isHighlighted;
 
 	// Use this for initialization
 	void Start () {
+
 		worldGrid = GameObject.Find("WorldGrid").GetComponent<WorldGridScript>();
 		worldGrid.AddTile(x,y,this);
+
+		UpdateColour();
+
 		if(!IsPassable)
 		{
 			this.gameObject.GetComponent<Renderer>().material.color = Color.red;
@@ -30,6 +37,52 @@ public class WorldTileScript : MonoBehaviour {
 		return m_neighbours;
 	}
 
+	public void Highlight()
+	{
+		m_isHighlighted = true;
+		UpdateColour();
+	}
+
+	public void UnHighlight()
+	{
+		m_isHighlighted = false;
+		UpdateColour();
+	}
+
+	public void ArmyEnter(ArmyCounter army)
+	{
+		Faction = army.Faction;
+		UpdateColour();
+	}
+
+	public void ArmyExit(ArmyCounter army)
+	{
+	}
+
+	void UpdateColour()
+	{
+		if(m_isHighlighted)
+		{
+			this.gameObject.GetComponent<Renderer>().material.color = Color.yellow;
+			return;
+		}
+
+		if(!IsPassable)
+		{
+			this.gameObject.GetComponent<Renderer>().material.color = Color.red;
+			return;
+		}
+
+		if(Faction)
+		{
+			this.gameObject.GetComponent<Renderer>().material.color = Faction.FactionColor;
+		}
+		else
+		{
+			this.gameObject.GetComponent<Renderer>().material.color = Color.white;
+		}
+	}
+
 	public void SetNeighbours(WorldTileScript[] neighbours)
 	{
 		m_neighbours = new WorldTileScript[neighbours.Length];
@@ -40,47 +93,7 @@ public class WorldTileScript : MonoBehaviour {
 		}
 	}
 
-	public void Unclick()
-	{
-		this.gameObject.GetComponent<Renderer>().material.color = Color.white;
-	}
-
-	public void Highlight(Color colour)
-	{
-		this.gameObject.GetComponent<Renderer>().material.color = colour;
-
-	}
-
-	public void HighlightNeighbour()
-	{
-		foreach(WorldTileScript neighbour in m_neighbours)
-		{
-			if(neighbour.IsPassable)
-			{
-				neighbour.gameObject.GetComponent<Renderer>().material.color = Color.green;
-			}
-			else
-			{
-				neighbour.gameObject.GetComponent<Renderer>().material.color = Color.red;
-			}
-		}
-	}
-
-	public void UnHighlight()
-	{
-		this.gameObject.GetComponent<Renderer>().material.color = Color.white;
-
-		foreach(WorldTileScript neighbour in m_neighbours)
-		{
-			neighbour.gameObject.GetComponent<Renderer>().material.color = Color.white;
-		}
-	}
-
 	void OnMouseDown()
 	{
-
-		worldGrid.ClearSelection();
-		Highlight(Color.blue);
-		HighlightNeighbour();
 	}
 }

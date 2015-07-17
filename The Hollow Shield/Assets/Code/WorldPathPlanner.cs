@@ -132,9 +132,10 @@ public class WorldPathPlanner : MonoBehaviour {
 
 	public void HighlightPath()
 	{
-		foreach(WorldTileScript tile in m_path)
-		{
-			tile.gameObject.GetComponent<Renderer>().material.color = Color.yellow;
+		for(int i = DistanceAlongPath; i < m_path.Count; i++)
+		{ 
+			WorldTileScript tile = m_path[i];
+			tile.Highlight();
 		}
 	}
 
@@ -142,7 +143,7 @@ public class WorldPathPlanner : MonoBehaviour {
 	{
 		foreach(WorldTileScript tile in m_path)
 		{
-			tile.gameObject.GetComponent<Renderer>().material.color = Color.white;
+			tile.UnHighlight();
 		}
 	}
 

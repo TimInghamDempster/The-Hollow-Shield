@@ -8,10 +8,12 @@ public class WorldGridScript : MonoBehaviour {
 
 	public int TileCountX;
 	public int TileCountY;
+	public FactionScript PlayerFaction;
 
 	public List<FactionScript> m_factions = new List<FactionScript>();
 
 	int m_currentFaction;
+	bool m_factionChanging = false;
 
 	public float XBounds
 	{
@@ -122,25 +124,17 @@ public class WorldGridScript : MonoBehaviour {
 
 	public void EndTurn ()
 	{
-		if(m_factions[m_currentFaction].TurnEnded)
-		{
-			m_currentFaction++;
-			m_currentFaction %= m_factions.Count;
-			m_factions[m_currentFaction].EndTurn();
-		}
-	}
-
-	public void ClearSelection()
-	{
-		foreach(WorldTileScript gridTile in tiles)
-		{
-			gridTile.Unclick();
-		}
+		m_factionChanging = true;
 	}
 
 	public void AddTile(int x, int y, WorldTileScript tile)
 	{
 		tiles[x, y] = tile;
+	}
+
+	public WorldTileScript GetTile(int x, int y)
+	{
+		return tiles[x, y];
 	}
 
 	// Use this for initialization
@@ -151,5 +145,22 @@ public class WorldGridScript : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		Cursor.lockState = CursorLockMode.Locked;
+
+		if(m_factionChanging)
+		{
+			int previousFaction = m_currentFaction == 0 ? m_factions.Count - 1 : m_currentFaction - 1;
+
+			if(m_factions[previousFaction].TurnEnded)
+			{
+				m_factions[m_currentFaction].EndTurn();
+				m_currentFaction++;
+
+				if(m_currentFaction == m_factions.Count)
+				{
+					m_currentFaction = 0;
+					m_factionChanging = false;
+				}
+			}
+		}
 	}
 }
