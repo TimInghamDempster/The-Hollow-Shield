@@ -26,7 +26,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 191274}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 15.3630419, y: -3.31991029, z: 16.0695763}
+  m_LocalPosition: {x: 21, y: 0, z: 25.1147366}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -39,9 +39,9 @@ MeshRenderer:
   m_GameObject: {fileID: 191274}
   m_Enabled: 1
   m_CastShadows: 1
-  m_ReceiveShadows: 1
+  m_ReceiveShadows: 0
   m_Materials:
-  - {fileID: 10302, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 9ed1f5cffe6a08c42bde4377215bc206, type: 2}
   m_SubsetIndices: 
   m_StaticBatchRoot: {fileID: 0}
   m_UseLightProbes: 1
@@ -61,7 +61,7 @@ MeshFilter:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 191274}
-  m_Mesh: {fileID: 4300000, guid: 6ab6f4a0e3e81784981395dd381f660e, type: 3}
+  m_Mesh: {fileID: 4300000, guid: 0015141a6dc8ed44e8f5e304ffdf299e, type: 3}
 --- !u!64 &6470358
 MeshCollider:
   m_ObjectHideFlags: 1
@@ -73,7 +73,7 @@ MeshCollider:
   m_Enabled: 1
   serializedVersion: 2
   m_Convex: 0
-  m_Mesh: {fileID: 4300000, guid: 6ab6f4a0e3e81784981395dd381f660e, type: 3}
+  m_Mesh: {fileID: 4300000, guid: 0015141a6dc8ed44e8f5e304ffdf299e, type: 3}
 --- !u!114 &11465634
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -85,13 +85,36 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e1ab5f6a1c39f4b47bd939d42cb766f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  worldGrid: {fileID: 0}
+  x: 14
+  y: 14
+  IsPassable: 1
+  Faction: {fileID: 0}
+  Type: 0
+  TileContentObject: {fileID: 0}
 --- !u!1001 &100100000
 Prefab:
   m_ObjectHideFlags: 1
   serializedVersion: 2
   m_Modification:
     m_TransformParent: {fileID: 0}
-    m_Modifications: []
+    m_Modifications:
+    - target: {fileID: 0}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 4300000, guid: 0015141a6dc8ed44e8f5e304ffdf299e, type: 3}
+    - target: {fileID: 0}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 0}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 0}
+      propertyPath: m_ReceiveShadows
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 0}
   m_RootGameObject: {fileID: 191274}

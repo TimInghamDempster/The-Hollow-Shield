@@ -31,6 +31,16 @@ public class MenuItems
 
 				tileScript.x = x;
 				tileScript.y = y;
+
+				GameObject tileContent = new GameObject();
+				tileContent.AddComponent<MeshFilter>();
+				tileContent.AddComponent<MeshRenderer>();
+
+				tileScript.TileContentObject = tileContent;
+				tileContent.transform.position = go.transform.position;
+
+				go.name += "_X:" + x.ToString() + ",Y:" + y.ToString();
+				tileContent.name = "tileContent_X:" + x.ToString() + ",Y:" + y.ToString();
 			}
 		}
 	}
@@ -73,6 +83,19 @@ public class MenuItems
 				}
 
 				castTile.gameObject.GetComponent<Renderer>().material = defualtMaterial;
+			}
+
+			switch (castTile.Type)
+			{
+			case TileType.Castle:
+				{
+				GameObject tileContent = castTile.TileContentObject;
+				MeshFilter meshFilter = tileContent.GetComponent<MeshFilter>();
+				meshFilter.mesh = castTile.Faction.FactionCastleMesh;
+				MeshRenderer meshRenderer = tileContent.GetComponent<MeshRenderer>();
+				meshRenderer.material = castTile.Faction.FactionCastleMaterial;
+				tileContent.transform.position = castTile.transform.position;
+				}break;
 			}
 		}
 	}

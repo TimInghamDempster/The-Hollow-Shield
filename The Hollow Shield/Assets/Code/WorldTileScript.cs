@@ -1,6 +1,16 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+public enum TileType
+{
+	Grass,
+	Snow,
+	Mountain,
+	Water,
+	Castle,
+	HuntingLodge
+}
+
 public class WorldTileScript : MonoBehaviour {
 
 	public WorldGridScript worldGrid;
@@ -11,7 +21,11 @@ public class WorldTileScript : MonoBehaviour {
 	WorldTileScript[] m_neighbours;
 	public FactionScript Faction;
 
+	public TileType Type;
+
 	bool m_isHighlighted;
+
+	public GameObject TileContentObject;
 
 	// Use this for initialization
 	void Start () {

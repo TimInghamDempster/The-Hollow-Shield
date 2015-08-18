@@ -8,6 +8,9 @@ public class FactionScript : MonoBehaviour {
 
 	public Color FactionColor;
 	FactionAIScript m_controller;
+
+	public Mesh FactionCastleMesh;
+	public Material FactionCastleMaterial;
 	
 	// Use this for initialization
 	void Start () 
