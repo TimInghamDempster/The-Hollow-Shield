@@ -7,7 +7,7 @@ public class MenuItems
 	static Material defualtMaterial;
 
 	[MenuItem("Hollow Shield Tools/Create Hex Grid")]
-	private static void NewMenuOption()
+	private static void CreateGridMenuOption()
 	{
 		WorldGridScript grid = GameObject.Find("WorldGrid").GetComponent<WorldGridScript>();
 
@@ -31,24 +31,32 @@ public class MenuItems
 
 				tileScript.x = x;
 				tileScript.y = y;
-
-				GameObject tileContent = new GameObject();
-				tileContent.AddComponent<MeshFilter>();
-				tileContent.AddComponent<MeshRenderer>();
-
-				tileScript.TileContentObject = tileContent;
-				tileContent.transform.position = go.transform.position;
-
-				go.name += "_X:" + x.ToString() + ",Y:" + y.ToString();
-				tileContent.name = "tileContent_X:" + x.ToString() + ",Y:" + y.ToString();
 			}
 		}
 	}
 	
+	[MenuItem("Hollow Shield Tools/Reset Grid")]
+	private static void ResetGridMenuOption()
+	{
+		WorldGridScript grid = GameObject.Find("WorldGrid").GetComponent<WorldGridScript>();
+		grid.DiscoverAndAddTiles();
+		grid.ClearTiles();
+	}
+
+	[MenuItem("Hollow Shield Tools/Generate Coastline")]
+	private static void GenerateCoastMenuOption()
+	{
+		WorldGridScript grid = GameObject.Find("WorldGrid").GetComponent<WorldGridScript>();
+		grid.DiscoverAndAddTiles();
+		grid.PostInitialise();
+		grid.GenerateCoastline();
+	}
+
 	[MenuItem("Hollow Shield Tools/UpdateTiles")]
 	private static void UpdateTilesMenuOption()
 	{
 		Object[] tiles = GameObject.FindObjectsOfType<WorldTileScript>();
+		WorldGridScript worldGrid = GameObject.Find("WorldGrid").GetComponent<WorldGridScript>();
 
 		foreach(object tile in tiles)
 		{
@@ -87,14 +95,26 @@ public class MenuItems
 
 			switch (castTile.Type)
 			{
-			case TileType.Castle:
+			case TileTypes.Grass:
 				{
-				GameObject tileContent = castTile.TileContentObject;
-				MeshFilter meshFilter = tileContent.GetComponent<MeshFilter>();
-				meshFilter.mesh = castTile.Faction.FactionCastleMesh;
-				MeshRenderer meshRenderer = tileContent.GetComponent<MeshRenderer>();
-				meshRenderer.material = castTile.Faction.FactionCastleMaterial;
-				tileContent.transform.position = castTile.transform.position;
+					MeshFilter meshFilter = castTile.gameObject.GetComponent<MeshFilter>();
+					meshFilter.mesh = worldGrid.GrassTileMesh;
+					MeshRenderer meshRenderer = castTile.gameObject.GetComponent<MeshRenderer>();
+					meshRenderer.material = worldGrid.GrassTileMaterial;
+				}break;
+			case TileTypes.Castle:
+				{
+					MeshFilter meshFilter = castTile.gameObject.GetComponent<MeshFilter>();
+					meshFilter.mesh = castTile.Faction.FactionCastleMesh;
+					MeshRenderer meshRenderer = castTile.gameObject.GetComponent<MeshRenderer>();
+					meshRenderer.material = castTile.Faction.FactionCastleMaterial;
+				}break;
+			case TileTypes.Water:
+				{
+					MeshFilter meshFilter = castTile.gameObject.GetComponent<MeshFilter>();
+					meshFilter.mesh = worldGrid.WaterTileMesh;
+					MeshRenderer meshRenderer = castTile.gameObject.GetComponent<MeshRenderer>();
+					meshRenderer.material = worldGrid.WaterTileMaterial;
 				}break;
 			}
 		}

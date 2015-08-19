@@ -112,6 +112,12 @@ public class ArmyCounter : MonoBehaviour {
 		}
 		else
 		{
+			if(name == "PlayerArmyCounter")
+			{
+				int a = 0;
+				a++;
+			}
+
 			if(transform.position != m_targetPos)
 			{
 				Vector3 delta = m_targetPos - transform.position;

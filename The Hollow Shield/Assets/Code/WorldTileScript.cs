@@ -1,14 +1,26 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public enum TileType
+public enum TileTypes
 {
 	Grass,
 	Snow,
+	Sand,
 	Mountain,
 	Water,
 	Castle,
-	HuntingLodge
+	HuntingLodge,
+	CombatSchool,
+	ArcherySchool
+}
+
+public enum SeedTileTypes
+{
+	Grass,
+	Snow,
+	Sand,
+	Mountain,
+	Water
 }
 
 public class WorldTileScript : MonoBehaviour {
@@ -21,11 +33,9 @@ public class WorldTileScript : MonoBehaviour {
 	WorldTileScript[] m_neighbours;
 	public FactionScript Faction;
 
-	public TileType Type;
+	public TileTypes Type;
 
 	bool m_isHighlighted;
-
-	public GameObject TileContentObject;
 
 	// Use this for initialization
 	void Start () {
@@ -44,6 +54,14 @@ public class WorldTileScript : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 	
+	}
+
+	public void SetMesh(Mesh mesh, Material material)
+	{
+		MeshFilter filter = gameObject.GetComponent<MeshFilter>();
+		MeshRenderer renderer = gameObject.GetComponent<MeshRenderer>();
+		filter.mesh = mesh;
+		renderer.material = material;
 	}
 
 	public WorldTileScript[] GetNeighbours()
