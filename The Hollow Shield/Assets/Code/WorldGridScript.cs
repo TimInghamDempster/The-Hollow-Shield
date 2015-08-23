@@ -20,6 +20,10 @@ public class Range
 public class CoastSetup
 {
 	public int Seed;
+	public Point2d SWCornerOffset;
+	public Point2d NWCornerOffset;
+	public Point2d NECornerOffset;
+	public Point2d SECornerOffset;
 	public SubductionMountainProperties NorthMountains;
 	public SubductionMountainProperties EastMountains;
 	public SubductionMountainProperties SouthMountains;
@@ -116,27 +120,27 @@ public class WorldGridScript : MonoBehaviour {
 		int min = CoastProperties.MinAndMaxDisplacements[0].min;
 		int max = CoastProperties.MinAndMaxDisplacements[0].max;
 
-		landCorners.Add(new Point2d() {x = Random.Range(min, max),
-			y = Random.Range(min, max)});		
-		landCorners.Add(new Point2d() {x = Random.Range(min, max),
-			y = TileCountY - Random.Range(min, max) - 1});		
-		landCorners.Add(new Point2d() {x = TileCountX - Random.Range(min, max) - 1,
-			y = Random.Range(min, max)});
-		landCorners.Add(new Point2d() {x = TileCountX - Random.Range(min, max) - 1,
-			y = TileCountY - Random.Range(min, max) - 1});
+		landCorners.Add(new Point2d() {x = Random.Range(min, max) + CoastProperties.SWCornerOffset.x,
+			y = Random.Range(min, max) + CoastProperties.SWCornerOffset.y});		
+		landCorners.Add(new Point2d() {x = Random.Range(min, max) + CoastProperties.NWCornerOffset.x,
+			y = TileCountY - Random.Range(min, max) - 1 + CoastProperties.NWCornerOffset.y});		
+		landCorners.Add(new Point2d() {x = TileCountX - Random.Range(min, max) - 1 + CoastProperties.SECornerOffset.x,
+			y = Random.Range(min, max) + CoastProperties.SECornerOffset.y});
+		landCorners.Add(new Point2d() {x = TileCountX - Random.Range(min, max) - 1 + CoastProperties.NECornerOffset.x,
+			y = TileCountY - Random.Range(min, max) - 1 + CoastProperties.NECornerOffset.y});
 
 		List<List<Point2d>> landEdges = new List<List<Point2d>>();
 		List<List<Point2d>> seaEdges = new List<List<Point2d>>();
 		List<List<Point2d>> mountainEdges = new List<List<Point2d>>();
 
 		landEdges.Add(new List<Point2d>() {
-			landCorners[0], landCorners[1]});
-		landEdges.Add(new List<Point2d>() {
 			landCorners[1], landCorners[3]});
 		landEdges.Add(new List<Point2d>() {
 			landCorners[3], landCorners[2]});
 		landEdges.Add(new List<Point2d>() {
 			landCorners[2], landCorners[0]});
+		landEdges.Add(new List<Point2d>() {
+			landCorners[0], landCorners[1]});
 
 		seaCorners.Add(new Point2d(){x = landCorners[0].x - 2, y = landCorners[0].y - 2});
 		seaCorners.Add(new Point2d(){x = landCorners[1].x - 2, y = landCorners[1].y + 2});
@@ -152,22 +156,22 @@ public class WorldGridScript : MonoBehaviour {
 		}
 
 		seaEdges.Add(new List<Point2d>() {
-			seaCorners[0], seaCorners[1]});
-		seaEdges.Add(new List<Point2d>() {
 			seaCorners[1], seaCorners[3]});
 		seaEdges.Add(new List<Point2d>() {
 			seaCorners[3], seaCorners[2]});
 		seaEdges.Add(new List<Point2d>() {
 			seaCorners[2], seaCorners[0]});
+		seaEdges.Add(new List<Point2d>() {
+			seaCorners[0], seaCorners[1]});
 
-		mountainEdges.Add(new List<Point2d>() {
-			landCorners[0], landCorners[1]});
 		mountainEdges.Add(new List<Point2d>() {
 			landCorners[1], landCorners[3]});
 		mountainEdges.Add(new List<Point2d>() {
 			landCorners[3], landCorners[2]});
 		mountainEdges.Add(new List<Point2d>() {
 			landCorners[2], landCorners[0]});
+		mountainEdges.Add(new List<Point2d>() {
+			landCorners[0], landCorners[1]});
 
 		mountainEdges[0][0] = new Point2d()
 			{x = mountainEdges[0][0].x + CoastProperties.NorthMountains.StartOffset.x,
@@ -500,21 +504,10 @@ public class WorldGridScript : MonoBehaviour {
 
 		foreach(WorldTileScript tile in totalMountains)
 		{
-			tile.SetMesh(MountainMesh, MountainMaterial);
-			tile.Type = TileTypes.Mountain;
-		}
-
-		foreach(WorldTileScript tile in sandTiles)
-		{
-			//tile.Type = TileTypes.Sand;
-			//tile.SetMesh(SandTileMesh, SandTileMaterial);
-		}
-
-		foreach(List<Point2d> edge in seaEdges)
-		{
-			foreach(Point2d point in edge)
+			if(tile.Type == TileTypes.Grass)
 			{
-				//m_tiles[point.x, point.y].SetMesh(SnowTileMesh, SnowTileMaterial);
+				tile.SetMesh(MountainMesh, MountainMaterial);
+				tile.Type = TileTypes.Mountain;
 			}
 		}
 	}
