@@ -21,7 +21,7 @@ public class ArmyCounter : MonoBehaviour {
 	float m_yBound;
 
 	Vector3 m_targetPos;
-	public float Speed;
+	public float Speed; 
 
 	public bool HasPath 
 	{
