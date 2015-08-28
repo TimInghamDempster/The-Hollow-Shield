@@ -52,6 +52,15 @@ public class MenuItems
 		grid.GenerateCoastline();
 	}
 
+	[MenuItem("Hollow Shield Tools/Simulate Tectonics")]
+	private static void SimulateTectonicsMenuOption()
+	{
+		WorldGridScript grid = GameObject.Find("WorldGrid").GetComponent<WorldGridScript>();
+		grid.DiscoverAndAddTiles();
+		grid.PostInitialise();
+		grid.DoTectonics();
+	}
+
 	[MenuItem("Hollow Shield Tools/UpdateTiles")]
 	private static void UpdateTilesMenuOption()
 	{

@@ -41,6 +41,16 @@ public class SubductionMountainProperties
 	public float ThickeningProbability;
 }
 
+[System.Serializable]
+public class TectonicsProperties
+{
+	public int NumberOfPlates;
+	public int MinimumSeparation;
+	public int Seed;
+	public int NumberOfSecondaryPoints;
+	public int SecondaryMaximumSeparations;
+}
+
 public class WorldGridScript : MonoBehaviour {
 
 
@@ -54,6 +64,7 @@ public class WorldGridScript : MonoBehaviour {
 	bool m_factionChanging = false;
 
 	public CoastSetup CoastProperties;
+	public TectonicsProperties TectonicsSetup;
 
 	public Mesh WaterTileMesh;
 	public Material WaterTileMaterial;
@@ -65,6 +76,12 @@ public class WorldGridScript : MonoBehaviour {
 	public Material SnowTileMaterial;
 	public Mesh MountainMesh;
 	public Material MountainMaterial;
+
+	
+	WorldTileScript[,] m_tiles;
+	List<WorldTileScript> m_collisionFaults = new List<WorldTileScript>();
+	List<WorldTileScript> m_slipFaults = new List<WorldTileScript>();
+	List<WorldTileScript> m_separationFaults = new List<WorldTileScript>();
 
 	public float XBounds
 	{
@@ -82,7 +99,6 @@ public class WorldGridScript : MonoBehaviour {
 		}
 	}
 
-	WorldTileScript[,] m_tiles;
 
 	public void ClearTiles()
 	{
@@ -508,6 +524,112 @@ public class WorldGridScript : MonoBehaviour {
 			{
 				tile.SetMesh(MountainMesh, MountainMaterial);
 				tile.Type = TileTypes.Mountain;
+			}
+		}
+	}
+
+	public void DoTectonics ()
+	{
+		Random.seed = TectonicsSetup.Seed;
+
+		int[,] tectonicGrid = new int[TileCountX, TileCountY];
+
+		List<List<WorldTileScript>> inputLists = new List<List<WorldTileScript>>();
+		List<List<WorldTileScript>> outputLists = new List<List<WorldTileScript>>();
+
+		for(int i = 0; i < TectonicsSetup.NumberOfPlates; i++)
+		{
+			for(int j = 0; j < 10000; j++)
+			{
+				int x = Random.Range(0, TileCountX);
+				int y = Random.Range(0, TileCountY);
+			
+
+				if(tectonicGrid[x,y] != i || i == 0)
+				{
+					int dist = int.MaxValue;
+
+					for(int k = 0; k <  inputLists.Count; k++)
+					{
+						int deltaX = inputLists[k][0].x - x;
+						int deltaY = inputLists[k][0].y - y;
+						int newDist = deltaX * deltaX + deltaY * deltaY;
+						dist = newDist < dist ? newDist : dist;
+					}
+
+					if(dist > (TectonicsSetup.MinimumSeparation * TectonicsSetup.MinimumSeparation))
+					{
+						List<WorldTileScript> inputList = new List<WorldTileScript>();
+						inputList.Add(m_tiles[x,y]);
+						inputLists.Add(inputList);
+
+						int secondaryDist = TectonicsSetup.SecondaryMaximumSeparations;
+						for(int u = 0; u < TectonicsSetup.NumberOfSecondaryPoints; u++)
+						{
+							int x2 = x + Random.Range(secondaryDist * -1, secondaryDist);
+							int y2 = y + Random.Range(secondaryDist * -1, secondaryDist);
+
+							if(x2 >= 0 &&
+							   x2 < TileCountX &&
+							   y2 >= 0 &&
+							   y2 < TileCountY)
+							{
+								inputList.Add(m_tiles[x2,y2]);
+							}
+						}
+
+						break;
+					}
+				}
+			}
+		}
+
+		StaticHelpers.FloodFill(TileCountX, TileCountY, inputLists, out outputLists);
+
+		List<Vector2> tectonicMovementVectors = new List<Vector2>();
+	
+		for(int i = 0; i < outputLists.Count; i++)
+		{
+			foreach(WorldTileScript tile in outputLists[i])
+			{
+				tectonicGrid[tile.x, tile.y] = i;
+			}
+
+			Vector2 tectonicVector = new Vector2(Random.value - 0.5f, Random.value - 0.5f);
+			tectonicVector.Normalize();
+			tectonicMovementVectors.Add(tectonicVector);
+		}
+
+		for(int x = 0; x < TileCountX; x++)
+		{
+			for(int y = 0; y < TileCountY; y++)
+			{
+				var tile = m_tiles[x,y];
+				int set = tectonicGrid[x,y];
+				foreach(var neighbour in tile.GetNeighbours())
+				{
+					int secondSet = tectonicGrid[neighbour.x, neighbour.y];
+					if(secondSet != set)
+					{
+						float closingSpeed = Vector2.Dot(tectonicMovementVectors[set], tectonicMovementVectors[secondSet]);
+						if(closingSpeed > 0.9f)
+						{
+							m_collisionFaults.Add(tile);
+							//tile.SetMesh(GrassTileMesh, null); // Uncomment for hacky visualisation
+						}
+						else if(closingSpeed < -0.8f)
+						{
+							m_separationFaults.Add(tile);
+							//tile.SetMesh(SnowTileMesh, SnowTileMaterial); // Uncomment for hacky visualisation
+						}
+						else
+						{
+							m_slipFaults.Add(tile);
+							//tile.SetMesh(SandTileMesh, SandTileMaterial); // Uncomment for hacky visualisation
+						}
+
+					}
+				}
 			}
 		}
 	}
