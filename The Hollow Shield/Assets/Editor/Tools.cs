@@ -61,6 +61,15 @@ public class MenuItems
 		grid.DoTectonics();
 	}
 
+	[MenuItem("Hollow Shield Tools/Simulate Geology")]
+	private static void SimulateGeologyMenuOption()
+	{
+		WorldGridScript grid = GameObject.Find("WorldGrid").GetComponent<WorldGridScript>();
+		grid.DiscoverAndAddTiles();
+		grid.PostInitialise();
+		grid.DoGeology();
+	}
+
 	[MenuItem("Hollow Shield Tools/UpdateTiles")]
 	private static void UpdateTilesMenuOption()
 	{

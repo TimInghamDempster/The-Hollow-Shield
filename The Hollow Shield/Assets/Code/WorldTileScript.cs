@@ -8,6 +8,7 @@ public enum TileTypes
 	Sand,
 	Mountain,
 	Water,
+	Sea,
 	Castle,
 	HuntingLodge,
 	CombatSchool,

@@ -42,13 +42,24 @@ public class SubductionMountainProperties
 }
 
 [System.Serializable]
-public class TectonicsProperties
+public class TectonicsSetup
 {
 	public int NumberOfPlates;
 	public int MinimumSeparation;
 	public int Seed;
 	public int NumberOfSecondaryPoints;
 	public int SecondaryMaximumSeparations;
+}
+
+[System.Serializable]
+public class GeologySetup
+{
+	public int Iterations;
+	public float SubductionRise;
+	public float CollisionRise;
+	public float BlockRise;
+	public float BlockProbability;
+	public float SeperationFall;
 }
 
 public class WorldGridScript : MonoBehaviour {
@@ -64,7 +75,8 @@ public class WorldGridScript : MonoBehaviour {
 	bool m_factionChanging = false;
 
 	public CoastSetup CoastProperties;
-	public TectonicsProperties TectonicsSetup;
+	public TectonicsSetup TectonicsProperties;
+	public GeologySetup GeologyProperties;
 
 	public Mesh WaterTileMesh;
 	public Material WaterTileMaterial;
@@ -79,9 +91,11 @@ public class WorldGridScript : MonoBehaviour {
 
 	
 	WorldTileScript[,] m_tiles;
-	List<WorldTileScript> m_collisionFaults = new List<WorldTileScript>();
-	List<WorldTileScript> m_slipFaults = new List<WorldTileScript>();
-	List<WorldTileScript> m_separationFaults = new List<WorldTileScript>();
+	List<WorldTileScript> m_collisionFaults;
+	List<WorldTileScript> m_slipFaults;
+	List<WorldTileScript> m_separationFaults;
+
+	float[] gaussKernel = new float[] { 0.003f, 0.048f, 0.262f, 0.415f, 0.262f, 0.048f, 0.003f };
 
 	public float XBounds
 	{
@@ -352,7 +366,7 @@ public class WorldGridScript : MonoBehaviour {
 
 		foreach(WorldTileScript tile in fillOutputLists[1])
 		{
-			tile.Type = TileTypes.Water;
+			tile.Type = TileTypes.Sea;
 			tile.SetMesh(WaterTileMesh, WaterTileMaterial);
 		}
 
@@ -530,14 +544,14 @@ public class WorldGridScript : MonoBehaviour {
 
 	public void DoTectonics ()
 	{
-		Random.seed = TectonicsSetup.Seed;
+		Random.seed = TectonicsProperties.Seed;
 
 		int[,] tectonicGrid = new int[TileCountX, TileCountY];
 
 		List<List<WorldTileScript>> inputLists = new List<List<WorldTileScript>>();
 		List<List<WorldTileScript>> outputLists = new List<List<WorldTileScript>>();
 
-		for(int i = 0; i < TectonicsSetup.NumberOfPlates; i++)
+		for(int i = 0; i < TectonicsProperties.NumberOfPlates; i++)
 		{
 			for(int j = 0; j < 10000; j++)
 			{
@@ -557,14 +571,14 @@ public class WorldGridScript : MonoBehaviour {
 						dist = newDist < dist ? newDist : dist;
 					}
 
-					if(dist > (TectonicsSetup.MinimumSeparation * TectonicsSetup.MinimumSeparation))
+					if(dist > (TectonicsProperties.MinimumSeparation * TectonicsProperties.MinimumSeparation))
 					{
 						List<WorldTileScript> inputList = new List<WorldTileScript>();
 						inputList.Add(m_tiles[x,y]);
 						inputLists.Add(inputList);
 
-						int secondaryDist = TectonicsSetup.SecondaryMaximumSeparations;
-						for(int u = 0; u < TectonicsSetup.NumberOfSecondaryPoints; u++)
+						int secondaryDist = TectonicsProperties.SecondaryMaximumSeparations;
+						for(int u = 0; u < TectonicsProperties.NumberOfSecondaryPoints; u++)
 						{
 							int x2 = x + Random.Range(secondaryDist * -1, secondaryDist);
 							int y2 = y + Random.Range(secondaryDist * -1, secondaryDist);
@@ -600,6 +614,10 @@ public class WorldGridScript : MonoBehaviour {
 			tectonicMovementVectors.Add(tectonicVector);
 		}
 
+		m_collisionFaults = new List<WorldTileScript>();
+		m_separationFaults = new List<WorldTileScript>();
+		m_slipFaults = new List<WorldTileScript>();
+
 		for(int x = 0; x < TileCountX; x++)
 		{
 			for(int y = 0; y < TileCountY; y++)
@@ -614,23 +632,160 @@ public class WorldGridScript : MonoBehaviour {
 						float closingSpeed = Vector2.Dot(tectonicMovementVectors[set], tectonicMovementVectors[secondSet]);
 						if(closingSpeed > 0.9f)
 						{
-							m_collisionFaults.Add(tile);
-							//tile.SetMesh(GrassTileMesh, null); // Uncomment for hacky visualisation
+							if(!m_collisionFaults.Contains(tile) && tile.Type != TileTypes.Sea)
+							{
+								m_collisionFaults.Add(tile);
+								//tile.SetMesh(GrassTileMesh, null); // Uncomment for hacky visualisation
+							}
 						}
 						else if(closingSpeed < -0.8f)
 						{
-							m_separationFaults.Add(tile);
-							//tile.SetMesh(SnowTileMesh, SnowTileMaterial); // Uncomment for hacky visualisation
+							if(!m_separationFaults.Contains(tile) && tile.Type != TileTypes.Sea)
+							{
+								m_separationFaults.Add(tile);
+								//tile.SetMesh(SnowTileMesh, SnowTileMaterial); // Uncomment for hacky visualisation
+							}
 						}
 						else
 						{
-							m_slipFaults.Add(tile);
-							//tile.SetMesh(SandTileMesh, SandTileMaterial); // Uncomment for hacky visualisation
+							if(!m_slipFaults.Contains(tile) && tile.Type != TileTypes.Sea)
+							{
+								m_slipFaults.Add(tile);
+								//tile.SetMesh(SandTileMesh, SandTileMaterial); // Uncomment for hacky visualisation
+							}
 						}
 
 					}
 				}
 			}
+		}
+	}
+
+	public void DoGeology ()
+	{
+		for(int x = 0; x < TileCountX; x++)
+		{
+			for(int y = 0; y < TileCountY; y++)
+			{
+				Vector3 pos = m_tiles[x,y].transform.position;
+				pos.y = 0.0f;
+				m_tiles[x,y].transform.position = pos;
+			}
+		}
+
+		for(int iteration = 0; iteration < GeologyProperties.Iterations; iteration++)
+		{
+			
+			for(int x = 0; x < TileCountX; x++)
+			{
+				for(int y = 0; y < TileCountY; y++)
+				{
+					WorldTileScript tile = m_tiles[x,y];
+
+					if(tile.Type == TileTypes.Mountain)
+					{
+						Vector3 pos = tile.transform.position;
+						pos.y += GeologyProperties.SubductionRise;
+						tile.transform.position = pos;
+					}
+				}
+			}
+
+			foreach(WorldTileScript tile in m_collisionFaults)
+			{
+				if(tile.Type != TileTypes.Sea)
+				{
+					Vector3 pos = tile.transform.position;
+					pos.y += GeologyProperties.CollisionRise;
+					tile.transform.position = pos;
+				}
+			}
+
+			
+			foreach(WorldTileScript tile in m_separationFaults)
+			{
+				if(tile.Type != TileTypes.Sea)
+				{
+					Vector3 pos = tile.transform.position;
+					pos.y -= GeologyProperties.SeperationFall;
+					tile.transform.position = pos;
+				}
+			}
+			
+			foreach(WorldTileScript tile in m_slipFaults)
+			{
+				if(tile.Type != TileTypes.Sea)
+				{
+					if(Random.value > GeologyProperties.BlockProbability)
+					{
+						Vector3 pos = tile.transform.position;
+						pos.y += GeologyProperties.BlockRise;
+						tile.transform.position = pos;
+					}
+				}
+			}
+
+			float[,] hBlurredHeights = new float[TileCountX, TileCountY];
+			float[,] vBlurredHeights = new float[TileCountX, TileCountY];
+
+			for(int x = 0; x < TileCountX; x++)
+			{
+				for(int y = 0; y < TileCountY; y++)
+				{
+					for(int delta = -3; delta <= 3; delta++)
+					{
+						int xPos = x + delta;
+						if(xPos >= 0 && xPos < TileCountX)
+						{
+							float kernalVal = gaussKernel[delta + 3];
+							hBlurredHeights[x,y] += m_tiles[xPos, y].transform.position.y * kernalVal;
+						}
+						else
+						{
+							// Nop as we assume the borders are all height = 0
+						}
+					}
+				}
+			}
+			for(int x = 0; x < TileCountX; x++)
+			{
+				for(int y = 0; y < TileCountY; y++)
+				{
+					for(int delta = -3; delta <= 3; delta++)
+					{
+						int yPos = y + delta;
+						if(yPos >= 0 && yPos < TileCountY)
+						{
+							float kernalVal = gaussKernel[delta + 3];
+							vBlurredHeights[x,y] += hBlurredHeights[x, yPos] * kernalVal;
+						}
+						else
+						{
+							// Nop as we assume the borders are all height = 0
+						}
+					}
+				}
+			}
+			
+			for(int x = 0; x < TileCountX; x++)
+			{
+				for(int y = 0; y < TileCountY; y++)
+				{
+					WorldTileScript tile = m_tiles[x,y];
+					if(tile.Type != TileTypes.Sea)
+					{
+						Vector3 pos = tile.transform.position;
+						pos.y = vBlurredHeights[x,y];
+						tile.transform.position = pos;
+					}
+				}
+			}
+		}
+
+		foreach(WorldTileScript tile in m_collisionFaults)
+		{
+			tile.Type = TileTypes.Mountain;
+			tile.SetMesh(MountainMesh, MountainMaterial);
 		}
 	}
 
