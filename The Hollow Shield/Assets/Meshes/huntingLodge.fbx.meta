@@ -1,6 +1,6 @@
 fileFormatVersion: 2
-guid: 7c4d55291bb244448baff570e6e3e81e
-timeCreated: 1440253989
+guid: f060dcb01002c1044bf6682eba4c85a1
+timeCreated: 1441287508
 licenseType: Free
 ModelImporter:
   serializedVersion: 18
@@ -9,7 +9,7 @@ ModelImporter:
     400000: //RootNode
     2300000: //RootNode
     3300000: //RootNode
-    4300000: armyTile_Feudal
+    4300000: huntingLodge
   materials:
     importMaterials: 1
     materialName: 0

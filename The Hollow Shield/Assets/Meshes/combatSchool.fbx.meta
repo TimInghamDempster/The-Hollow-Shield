@@ -1,6 +1,6 @@
 fileFormatVersion: 2
-guid: 7c4d55291bb244448baff570e6e3e81e
-timeCreated: 1440253989
+guid: 4ac35788e87edec47aa31cd1350f6cc0
+timeCreated: 1441287502
 licenseType: Free
 ModelImporter:
   serializedVersion: 18
@@ -9,7 +9,7 @@ ModelImporter:
     400000: //RootNode
     2300000: //RootNode
     3300000: //RootNode
-    4300000: armyTile_Feudal
+    4300000: CombatSchool
   materials:
     importMaterials: 1
     materialName: 0

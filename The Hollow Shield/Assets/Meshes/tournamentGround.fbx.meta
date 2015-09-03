@@ -1,6 +1,6 @@
 fileFormatVersion: 2
-guid: 7c4d55291bb244448baff570e6e3e81e
-timeCreated: 1440253989
+guid: b36b1d49c0031e745adae0b4b5654f96
+timeCreated: 1441287505
 licenseType: Free
 ModelImporter:
   serializedVersion: 18
@@ -9,7 +9,7 @@ ModelImporter:
     400000: //RootNode
     2300000: //RootNode
     3300000: //RootNode
-    4300000: armyTile_Feudal
+    4300000: tournamentGround
   materials:
     importMaterials: 1
     materialName: 0
