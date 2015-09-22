@@ -70,6 +70,15 @@ public class MenuItems
 		grid.DoGeology();
 	}
 
+	[MenuItem("Hollow Shield Tools/Simulate Rivers")]
+	private static void SimulateRiversMenuOption()
+	{
+		WorldGridScript grid = GameObject.Find("WorldGrid").GetComponent<WorldGridScript>();
+		grid.DiscoverAndAddTiles();
+		grid.PostInitialise();
+		grid.DoRivers();
+	}
+
 	[MenuItem("Hollow Shield Tools/UpdateTiles")]
 	private static void UpdateTilesMenuOption()
 	{

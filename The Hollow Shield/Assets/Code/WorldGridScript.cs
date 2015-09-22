@@ -60,6 +60,14 @@ public class GeologySetup
 	public float BlockRise;
 	public float BlockProbability;
 	public float SeperationFall;
+	public float ContinentHeight;
+}
+
+[System.Serializable]
+public class RiverSetup
+{
+	public float MomentumConservation;
+	public float RiverCuttingWeight;
 }
 
 public class WorldGridScript : MonoBehaviour {
@@ -77,6 +85,7 @@ public class WorldGridScript : MonoBehaviour {
 	public CoastSetup CoastProperties;
 	public TectonicsSetup TectonicsProperties;
 	public GeologySetup GeologyProperties;
+	public RiverSetup RiverProperties;
 
 	public Mesh WaterTileMesh;
 	public Material WaterTileMaterial;
@@ -668,7 +677,14 @@ public class WorldGridScript : MonoBehaviour {
 			for(int y = 0; y < TileCountY; y++)
 			{
 				Vector3 pos = m_tiles[x,y].transform.position;
-				pos.y = 0.0f;
+				if(m_tiles[x,y].Type == TileTypes.Sea)
+				{
+					pos.y = 0.0f;
+				}
+				else
+				{
+					pos.y = GeologyProperties.ContinentHeight;
+				}
 				m_tiles[x,y].transform.position = pos;
 			}
 		}
@@ -784,8 +800,73 @@ public class WorldGridScript : MonoBehaviour {
 
 		foreach(WorldTileScript tile in m_collisionFaults)
 		{
-			tile.Type = TileTypes.Mountain;
-			tile.SetMesh(MountainMesh, MountainMaterial);
+			if(tile.Type != TileTypes.Water)
+			{
+				tile.Type = TileTypes.Mountain;
+				tile.SetMesh(MountainMesh, MountainMaterial);
+			}
+		}
+	}
+
+	public void DoRivers()
+	{
+		List<WorldTileScript> riverTiles = new List<WorldTileScript>();
+
+		for(int x = 0; x < TileCountX; x++)
+		{
+			for(int y = 0; y < TileCountY; y++)
+			{
+				WorldTileScript tile = m_tiles[x,y];
+
+				if(tile.Type == TileTypes.Water)
+				{
+					riverTiles.Add(tile);
+				}
+			}
+		}
+
+		List<WorldTileScript> totalRiverTiles = new List<WorldTileScript>();
+
+		bool expanded = true;
+		while(expanded)
+		{
+			expanded = false;
+			List<WorldTileScript> newTiles = new List<WorldTileScript>();
+			foreach(WorldTileScript tile in riverTiles)
+			{
+				if(tile.Type != TileTypes.Mountain)
+				{
+					tile.SetMesh(SnowTileMesh, WaterTileMaterial);
+					tile.Type = TileTypes.Water;
+				}
+				totalRiverTiles.Add(tile);
+
+				float top = tile.transform.position.y;
+				WorldTileScript nextTile = null;
+				foreach(var neighbour in tile.GetNeighbours())
+				{
+					if(neighbour.transform.position.y < top
+					   && neighbour.Type != TileTypes.Sea
+					   && neighbour.Type != TileTypes.Water)
+					{
+						nextTile = neighbour;
+						top = neighbour.transform.position.y;
+						expanded = true;
+					}
+				}
+				if(nextTile != null)
+				{
+					newTiles.Add(nextTile);
+				}
+			}
+			riverTiles = newTiles;
+		}
+
+		foreach(WorldTileScript tile in totalRiverTiles)
+		{
+			Vector3 pos = tile.transform.position;
+			pos.y -= RiverProperties.RiverCuttingWeight;
+			tile.transform.position = pos;
 		}
 	}
 
