@@ -70,13 +70,13 @@ public class MenuItems
 		grid.DoGeology();
 	}
 
-	[MenuItem("Hollow Shield Tools/Simulate Rivers")]
+	[MenuItem("Hollow Shield Tools/Simulate Growth")]
 	private static void SimulateRiversMenuOption()
 	{
 		WorldGridScript grid = GameObject.Find("WorldGrid").GetComponent<WorldGridScript>();
 		grid.DiscoverAndAddTiles();
 		grid.PostInitialise();
-		grid.DoRivers();
+		grid.AssignTileTypes();
 	}
 
 	[MenuItem("Hollow Shield Tools/UpdateTiles")]
@@ -142,6 +142,10 @@ public class MenuItems
 					meshFilter.mesh = worldGrid.WaterTileMesh;
 					MeshRenderer meshRenderer = castTile.gameObject.GetComponent<MeshRenderer>();
 					meshRenderer.material = worldGrid.WaterTileMaterial;
+				}break;
+			case TileTypes.Sand:
+				{
+					castTile.SetMesh(worldGrid.SandTileMesh, worldGrid.SandTileMaterial);
 				}break;
 			}
 		}

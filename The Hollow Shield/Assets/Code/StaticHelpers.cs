@@ -4,6 +4,25 @@ using System.Collections.Generic;
 
 public static class StaticHelpers {
 
+	public static void Expand (int tileCountX, int tileCountY, List<WorldTileScript> tiles)
+	{
+		List<WorldTileScript> newTiles = new List<WorldTileScript>();
+		foreach(WorldTileScript inputTile in tiles)
+		{
+			foreach(WorldTileScript newTile in inputTile.GetNeighbours())
+			{
+				if(!newTiles.Contains(newTile))
+				{
+					newTiles.Add(newTile);
+	             }
+			}
+		}
+		foreach(WorldTileScript tile in newTiles)
+		{
+			tiles.Add(tile);
+		}
+	}
+
 	public static int Clamp( int value, int min, int max )
 	{
 		return (value < min) ? min : (value > max) ? max : value;

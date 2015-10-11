@@ -64,10 +64,19 @@ public class GeologySetup
 }
 
 [System.Serializable]
-public class RiverSetup
+public class VegetationSetup
 {
-	public float MomentumConservation;
-	public float RiverCuttingWeight;
+	public int RandomSeed;
+	public int TundraIndex;
+	public int TundraIterations;
+	public float TundraExpansionThreshold;
+	public float ArborialHygrationThreshold;
+	public float GrasslandHygrationThreshold;
+	public int FloodplaneIterations;
+	public float RiverTreeThreshold;
+	public float PlainsTreeThreshold;
+	public int ForestGrowthIterations;
+	public float TreeExpansionThreshold;
 }
 
 public class WorldGridScript : MonoBehaviour {
@@ -85,7 +94,7 @@ public class WorldGridScript : MonoBehaviour {
 	public CoastSetup CoastProperties;
 	public TectonicsSetup TectonicsProperties;
 	public GeologySetup GeologyProperties;
-	public RiverSetup RiverProperties;
+	public VegetationSetup VegetationProperties;
 
 	public Mesh WaterTileMesh;
 	public Material WaterTileMaterial;
@@ -93,6 +102,8 @@ public class WorldGridScript : MonoBehaviour {
 	public Material GrassTileMaterial;
 	public Mesh SandTileMesh;
 	public Material SandTileMaterial;
+	public Mesh ForestTileMesh;
+	public Material ForestTileMaterial;
 	public Mesh SnowTileMesh;
 	public Material SnowTileMaterial;
 	public Mesh MountainMesh;
@@ -121,7 +132,160 @@ public class WorldGridScript : MonoBehaviour {
 			return TileCountY * 1.66f;
 		}
 	}
+	
+	public void AssignTileTypes()
+	{
+		Random.seed = VegetationProperties.RandomSeed;
 
+		// Do Tundra
+		for(int y = TileCountY - VegetationProperties.TundraIndex; y < TileCountY; y++)
+		{
+			for(int x = 0; x < TileCountX; x++)
+			{
+				WorldTileScript tile = m_tiles[x,y];
+				if(tile.Type == TileTypes.Grass)
+				{
+					tile.Type = TileTypes.Snow;
+					tile.SetMesh(SnowTileMesh, SnowTileMaterial);
+				}
+			}
+		}
+
+		for(int i = 0; i < VegetationProperties.TundraIterations; i++)
+		{
+			for(int y = 0; y < TileCountY; y++)
+			{
+				for(int x = 0; x < TileCountX; x++)
+				{
+					WorldTileScript tile = m_tiles[x,y];
+					if(tile.Type == TileTypes.Grass)
+					{
+						foreach(WorldTileScript neighbour in tile.GetNeighbours())
+						{
+							if(neighbour.Type == TileTypes.Snow)
+							{
+								if(Random.value > VegetationProperties.TundraExpansionThreshold)
+								{
+									tile.Type = TileTypes.Snow;
+									tile.SetMesh(SnowTileMesh, SnowTileMaterial);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		// Do beaches
+		for(int y = 0; y < TileCountY; y++)
+		{
+			for(int x = 0; x < TileCountX; x++)
+			{
+				WorldTileScript tile = m_tiles[x,y];
+				if(tile.Type == TileTypes.Grass)
+				{
+					foreach(WorldTileScript neighbour in tile.GetNeighbours())
+					{
+						if(neighbour.Type == TileTypes.Sea)
+						{
+							tile.Type = TileTypes.Sand;
+							tile.SetMesh(SandTileMesh, SandTileMaterial);
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		List<WorldTileScript> floodplane = new List<WorldTileScript>();
+		// Do deserts and forests
+		for(int y = 0; y < TileCountY; y++)
+		{
+			for(int x = 0; x < TileCountX; x++)
+			{
+				WorldTileScript tile = m_tiles[x,y];
+				if(tile.Type == TileTypes.Grass)
+				{
+					float hygration = (float)y;
+
+					if(hygration > VegetationProperties.ArborialHygrationThreshold)
+					{
+						if(Random.value > VegetationProperties.PlainsTreeThreshold)
+						{
+							tile.Type = TileTypes.Forest;
+							tile.SetMesh(ForestTileMesh, ForestTileMaterial);
+						}
+					}
+					else if(hygration < VegetationProperties.GrasslandHygrationThreshold)
+					{
+						tile.Type = TileTypes.Sand;
+						tile.SetMesh(SandTileMesh, SandTileMaterial);
+					}
+				}
+
+				if(tile.Type == TileTypes.Water)
+				{
+					floodplane.Add(tile);
+				}
+			}
+		}
+
+		for(int i = 0; i < VegetationProperties.ForestGrowthIterations; i++)
+		{
+			for(int y = 0; y < TileCountY; y++)
+			{
+				for(int x = 0; x < TileCountX; x++)
+				{
+					WorldTileScript tile = m_tiles[x,y];
+					if(tile.Type == TileTypes.Grass)
+					{
+						foreach(WorldTileScript neighbour in tile.GetNeighbours())
+						{
+							if(neighbour.Type == TileTypes.Forest)
+							{
+								if(Random.value > VegetationProperties.TreeExpansionThreshold)
+								{
+									tile.Type = TileTypes.Forest;
+									tile.SetMesh(ForestTileMesh, ForestTileMaterial);
+									break;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+
+		for(int i = 0; i < VegetationProperties.FloodplaneIterations; i++)
+		{
+			StaticHelpers.Expand(TileCountX, TileCountY, floodplane);
+		}
+
+		foreach(WorldTileScript tile in floodplane)
+		{
+			if(tile.Type == TileTypes.Sand)
+			{
+				tile.Type = TileTypes.Grass;
+				tile.SetMesh(GrassTileMesh, GrassTileMaterial);
+			}
+			else if(tile.Type == TileTypes.Grass)
+			{
+				if(Random.value > VegetationProperties.RiverTreeThreshold)
+				{
+					foreach(WorldTileScript neighbour in tile.GetNeighbours())
+					{
+						if(neighbour.Type == TileTypes.Water)
+						{
+							tile.Type = TileTypes.Forest;
+							tile.SetMesh(ForestTileMesh, ForestTileMaterial);
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
 
 	public void ClearTiles()
 	{
@@ -369,8 +533,11 @@ public class WorldGridScript : MonoBehaviour {
 
 		foreach(WorldTileScript tile in fillOutputLists[0])
 		{
-			tile.Type = TileTypes.Grass;
-			tile.SetMesh(GrassTileMesh, GrassTileMaterial);
+			if(tile.Type != TileTypes.Water)
+			{
+				tile.Type = TileTypes.Grass;
+				tile.SetMesh(GrassTileMesh, GrassTileMaterial);
+			}
 		}
 
 		foreach(WorldTileScript tile in fillOutputLists[1])
@@ -805,68 +972,6 @@ public class WorldGridScript : MonoBehaviour {
 				tile.Type = TileTypes.Mountain;
 				tile.SetMesh(MountainMesh, MountainMaterial);
 			}
-		}
-	}
-
-	public void DoRivers()
-	{
-		List<WorldTileScript> riverTiles = new List<WorldTileScript>();
-
-		for(int x = 0; x < TileCountX; x++)
-		{
-			for(int y = 0; y < TileCountY; y++)
-			{
-				WorldTileScript tile = m_tiles[x,y];
-
-				if(tile.Type == TileTypes.Water)
-				{
-					riverTiles.Add(tile);
-				}
-			}
-		}
-
-		List<WorldTileScript> totalRiverTiles = new List<WorldTileScript>();
-
-		bool expanded = true;
-		while(expanded)
-		{
-			expanded = false;
-			List<WorldTileScript> newTiles = new List<WorldTileScript>();
-			foreach(WorldTileScript tile in riverTiles)
-			{
-				if(tile.Type != TileTypes.Mountain)
-				{
-					tile.SetMesh(SnowTileMesh, WaterTileMaterial);
-					tile.Type = TileTypes.Water;
-				}
-				totalRiverTiles.Add(tile);
-
-				float top = tile.transform.position.y;
-				WorldTileScript nextTile = null;
-				foreach(var neighbour in tile.GetNeighbours())
-				{
-					if(neighbour.transform.position.y < top
-					   && neighbour.Type != TileTypes.Sea
-					   && neighbour.Type != TileTypes.Water)
-					{
-						nextTile = neighbour;
-						top = neighbour.transform.position.y;
-						expanded = true;
-					}
-				}
-				if(nextTile != null)
-				{
-					newTiles.Add(nextTile);
-				}
-			}
-			riverTiles = newTiles;
-		}
-
-		foreach(WorldTileScript tile in totalRiverTiles)
-		{
-			Vector3 pos = tile.transform.position;
-			pos.y -= RiverProperties.RiverCuttingWeight;
-			tile.transform.position = pos;
 		}
 	}
 
