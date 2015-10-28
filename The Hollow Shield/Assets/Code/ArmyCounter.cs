@@ -8,6 +8,7 @@ public class ArmyCounter : MonoBehaviour {
 
 	Camera m_camera;
 	bool m_selected;
+	bool m_latched;
 	Vector3 m_positionWhenPickedUp;
 	WorldGridScript m_worldGrid;
 	WorldTileScript m_tile;
@@ -109,15 +110,35 @@ public class ArmyCounter : MonoBehaviour {
 			}
 
 			transform.position = newPos;
+
+			if(Input.GetMouseButtonUp(0))
+			{
+				m_latched = false;
+			}
+
+			if(Input.GetMouseButtonDown(0) && !m_latched)
+			{
+				m_selected = false;
+				transform.position = m_positionWhenPickedUp;
+				
+				if(m_hoverTile)
+				{
+					if(m_hoverTile.IsPassable)
+					{
+						m_hoverTile.UnHighlight();
+					}
+				}
+				
+				if(m_tile &&
+				   m_hoverTile &&
+				   m_hoverTile.IsPassable)
+				{
+					m_pathPlanner.PlanPath(m_tile, m_hoverTile);
+				}
+			}
 		}
 		else
 		{
-			if(name == "PlayerArmyCounter")
-			{
-				int a = 0;
-				a++;
-			}
-
 			if(transform.position != m_targetPos)
 			{
 				Vector3 delta = m_targetPos - transform.position;
@@ -157,7 +178,6 @@ public class ArmyCounter : MonoBehaviour {
 				m_pathPlanner.DistanceAlongPath++;
 
 				m_targetPos = m_pathPlanner.Path[m_pathPlanner.DistanceAlongPath].transform.position;
-				m_targetPos.y = transform.position.y;
 				m_targetTile = m_pathPlanner.Path[m_pathPlanner.DistanceAlongPath];
 			}
 			else
@@ -207,6 +227,7 @@ public class ArmyCounter : MonoBehaviour {
 			m_camera = GameObject.Find("FirstPersonCharacter").GetComponent<Camera>();
 			m_positionWhenPickedUp = transform.position;
 			m_selected = true;
+			m_latched = true;
 
 			if(!m_tile)
 			{
@@ -223,26 +244,6 @@ public class ArmyCounter : MonoBehaviour {
 						m_tile = tile;
 					}
 				}
-			}
-		}
-		else
-		{
-			m_selected = false;
-			transform.position = m_positionWhenPickedUp;
-
-			if(m_hoverTile)
-			{
-				if(m_hoverTile.IsPassable)
-				{
-					m_hoverTile.UnHighlight();
-				}
-			}
-			
-			if(m_tile &&
-			   m_hoverTile &&
-			   m_hoverTile.IsPassable)
-			{
-				m_pathPlanner.PlanPath(m_tile, m_hoverTile);
 			}
 		}
 	}
