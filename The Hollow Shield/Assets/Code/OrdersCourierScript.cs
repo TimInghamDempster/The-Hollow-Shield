@@ -114,6 +114,6 @@ public class OrdersCourierScript : MonoBehaviour {
 	
 	public void PlanPath()
 	{
-		m_pathPlanner.PlanPath(Tile, TargetArmy.Tile);
+		m_pathPlanner.PlanPath(Tile, TargetArmy.Tile, true);
 	}
 }

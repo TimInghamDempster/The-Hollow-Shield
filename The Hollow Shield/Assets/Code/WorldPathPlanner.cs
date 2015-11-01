@@ -23,7 +23,7 @@ public class WorldPathPlanner : MonoBehaviour {
 		m_path = new List<WorldTileScript>();
 	}
 
-	public void PlanPath(WorldTileScript start, WorldTileScript destination)
+	public void PlanPath(WorldTileScript start, WorldTileScript destination, bool ignorePassability)
 	{
 		bool[,] closed = new bool[worldGrid.TileCountX, worldGrid.TileCountY];
 		WorldTileScript[,] parent = new WorldTileScript[worldGrid.TileCountX, worldGrid.TileCountY];
@@ -70,7 +70,7 @@ public class WorldPathPlanner : MonoBehaviour {
 
 			foreach(WorldTileScript neighbour in current.GetNeighbours())
 			{
-				if(!neighbour.IsPassable)
+				if(!neighbour.IsPassable && !ignorePassability)
 				{
 					closed[neighbour.x, neighbour.y] = true;
 				}

@@ -190,7 +190,7 @@ public class ArmyCounter : MonoBehaviour {
 
 	public void SetObjective(WorldTileScript objectiveTile)
 	{
-		m_pathPlanner.PlanPath(m_tile, objectiveTile);
+		m_pathPlanner.PlanPath(m_tile, objectiveTile, false);
 	}
 
 	public void BeginEndTurn()
