@@ -50,11 +50,6 @@ public class WorldTileScript : MonoBehaviour {
 		worldGrid.AddTile(x,y,this);
 
 		UpdateColour();
-
-		if(!IsPassable)
-		{
-			this.gameObject.GetComponent<Renderer>().material.color = Color.red;
-		}
 	}
 	
 	// Update is called once per frame
@@ -109,7 +104,7 @@ public class WorldTileScript : MonoBehaviour {
 
 		if(!IsPassable)
 		{
-			this.gameObject.GetComponent<Renderer>().material.color = Color.red;
+			this.gameObject.GetComponent<Renderer>().material.color = (Color.red * 0.1f) + (Color.white * 0.9f);
 			return;
 		}
 

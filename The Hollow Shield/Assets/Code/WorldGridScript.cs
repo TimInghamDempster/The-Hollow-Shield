@@ -975,6 +975,25 @@ public class WorldGridScript : MonoBehaviour {
 		}
 	}
 
+	public void CalcPassable ()
+	{
+		foreach(WorldTileScript tile in m_tiles)
+		{
+			if(tile.Type == TileTypes.Mountain ||
+			   tile.Type == TileTypes.Forest ||
+			   tile.Type == TileTypes.Sea ||
+			   tile.Type == TileTypes.Water)
+			{
+				tile.IsPassable = false;
+			}
+			else
+			{
+				tile.IsPassable = true;
+			}
+			UnityEditor.EditorUtility.SetDirty(tile);
+		}
+	}
+
 	public void DiscoverAndAddTiles()
 	{
 		m_tiles = new WorldTileScript[TileCountX, TileCountY];

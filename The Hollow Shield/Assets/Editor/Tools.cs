@@ -43,6 +43,14 @@ public class MenuItems
 		grid.ClearTiles();
 	}
 
+	[MenuItem("Hollow Shield Tools/Calculate Passability")]
+	private static void CalcPassableMenuOption()
+	{
+		WorldGridScript grid = GameObject.Find("WorldGrid").GetComponent<WorldGridScript>();
+		grid.DiscoverAndAddTiles();
+		grid.CalcPassable();
+	}
+
 	[MenuItem("Hollow Shield Tools/Generate Coastline")]
 	private static void GenerateCoastMenuOption()
 	{
