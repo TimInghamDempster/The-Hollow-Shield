@@ -15,6 +15,8 @@ public class OrdersCourierScript : MonoBehaviour {
 	public float Speed;
 	WorldTileScript m_movementTargetTile;
 
+	bool m_onSecondTileMove = false;
+
 	public bool TurnEnded
 	{
 		get
@@ -58,6 +60,26 @@ public class OrdersCourierScript : MonoBehaviour {
 					Faction.m_orders.Remove(this);
 					Destroy(this.gameObject);
 				}
+				if(m_onSecondTileMove == false)
+				{
+					m_onSecondTileMove = true;
+
+					if(m_pathPlanner.DistanceAlongPath < m_pathPlanner.Path.Count - 1)
+					{
+						m_pathPlanner.DistanceAlongPath++;
+						
+						m_targetPos = m_pathPlanner.Path[m_pathPlanner.DistanceAlongPath].transform.position;
+						m_targetPos.y = 5.0f;
+						m_movementTargetTile = m_pathPlanner.Path[m_pathPlanner.DistanceAlongPath];
+					}
+					else
+					{
+						if(Tile.Army != TargetArmy)
+						{
+							PlanPath();
+						}
+					}
+				}
 			}
 			
 			transform.position += delta;
@@ -71,6 +93,7 @@ public class OrdersCourierScript : MonoBehaviour {
 	{
 		if(m_pathPlanner.Path.Count > 1)
 		{
+			m_onSecondTileMove = false;
 			if(m_pathPlanner.DistanceAlongPath < m_pathPlanner.Path.Count - 1)
 			{
 				m_pathPlanner.DistanceAlongPath++;
