@@ -1,10 +1,11 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 public class ArmyCounter : MonoBehaviour {
 
 	public float HoverPlane;
 	public FactionScript Faction;
+	public Transform OrdersPrefab;
 
 	Camera m_camera;
 	bool m_selected;
@@ -23,6 +24,14 @@ public class ArmyCounter : MonoBehaviour {
 
 	Vector3 m_targetPos;
 	public float Speed; 
+
+	public WorldTileScript Tile
+	{
+		get
+		{
+			return m_tile;
+		}
+	}
 
 	public bool HasPath 
 	{
@@ -61,6 +70,7 @@ public class ArmyCounter : MonoBehaviour {
 			if(tile)
 			{				
 				m_tile = tile;
+				m_tile.ArmyEnter(this);
 			}
 		}
 	}
@@ -128,12 +138,26 @@ public class ArmyCounter : MonoBehaviour {
 						m_hoverTile.UnHighlight();
 					}
 				}
-				
-				if(m_tile &&
-				   m_hoverTile &&
-				   m_hoverTile.IsPassable)
+
+				if(Faction.HomeArmy == this)
 				{
-					m_pathPlanner.PlanPath(m_tile, m_hoverTile);
+					if(m_tile &&
+					   m_hoverTile &&
+					   m_hoverTile.IsPassable)
+					{
+						SetObjective(m_hoverTile);
+					}
+				}
+				else
+				{
+					Transform ordersOrigin = Faction.HomeArmy.transform;
+					Transform orders = (Transform)Instantiate(OrdersPrefab, ordersOrigin.position, ordersOrigin.rotation);
+					OrdersCourierScript os = orders.gameObject.GetComponent<OrdersCourierScript>();
+					os.TargetArmy = this;
+					os.TargetArmyNewObjective = m_hoverTile;
+					os.Faction = Faction;
+					os.Tile = Faction.HomeArmy.Tile;
+					Faction.m_orders.Add(os);
 				}
 			}
 		}

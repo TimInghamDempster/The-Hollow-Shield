@@ -5,12 +5,14 @@ using System.Collections.Generic;
 public class FactionScript : MonoBehaviour {
 
 	public List<ArmyCounter> m_armies = new List<ArmyCounter>();
+	public List<OrdersCourierScript> m_orders = new List<OrdersCourierScript>();
 
 	public Color FactionColor;
 	FactionAIScript m_controller;
 
 	public Mesh FactionCastleMesh;
 	public Material FactionCastleMaterial;
+	public ArmyCounter HomeArmy;
 	
 	// Use this for initialization
 	void Start () 
@@ -25,6 +27,13 @@ public class FactionScript : MonoBehaviour {
 			foreach(ArmyCounter army in m_armies)
 			{
 				if(!army.TurnEnded)
+				{
+					return false;
+				}
+			}
+			foreach(OrdersCourierScript order in m_orders)
+			{
+				if(!order.TurnEnded)
 				{
 					return false;
 				}
@@ -44,6 +53,10 @@ public class FactionScript : MonoBehaviour {
 		foreach(ArmyCounter army in m_armies)
 		{
 			army.BeginEndTurn();
+		}
+		foreach(OrdersCourierScript order in m_orders)
+		{
+			order.BeginEndTurn();
 		}
 		if(m_controller)
 		{

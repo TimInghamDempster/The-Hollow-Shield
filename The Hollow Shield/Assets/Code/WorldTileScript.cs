@@ -39,6 +39,10 @@ public class WorldTileScript : MonoBehaviour {
 
 	bool m_isHighlighted;
 
+	ArmyCounter m_army;
+
+	public ArmyCounter Army { get {return m_army; } }
+
 	// Use this for initialization
 	void Start () {
 
@@ -87,10 +91,12 @@ public class WorldTileScript : MonoBehaviour {
 	{
 		Faction = army.Faction;
 		UpdateColour();
+		m_army = army;
 	}
 
 	public void ArmyExit(ArmyCounter army)
 	{
+		m_army = null;
 	}
 
 	void UpdateColour()
