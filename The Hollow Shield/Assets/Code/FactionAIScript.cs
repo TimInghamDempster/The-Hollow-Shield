@@ -3,6 +3,8 @@ using System.Collections;
 
 public class FactionAIScript : MonoBehaviour {
 
+	public Transform OrdersPrefab;
+
 	WorldGridScript m_worldGrid;
 	// Use this for initialization
 	void Start () 
@@ -34,7 +36,35 @@ public class FactionAIScript : MonoBehaviour {
 					if(tile.IsPassable)
 					{
 						success = true;
-						army.SetObjective(tile);
+						if(army == faction.HomeArmy)
+						{
+							army.SetObjective(tile);
+						}
+						else
+						{
+							bool hasOrders = false;
+							foreach(OrdersCourierScript courier in faction.m_orders)
+							{
+								if(courier.TargetArmy == army)
+								{
+									hasOrders = true;
+									break;
+								}
+							}
+							if(hasOrders)
+							{
+								continue;
+							}
+
+							Transform ordersOrigin = faction.HomeArmy.transform;
+							Transform orders = (Transform)Instantiate(OrdersPrefab, ordersOrigin.position, ordersOrigin.rotation);
+							OrdersCourierScript os = orders.gameObject.GetComponent<OrdersCourierScript>();
+							os.TargetArmy = army;
+							os.TargetArmyNewObjective = tile;
+							os.Faction = faction;
+							os.Tile = faction.HomeArmy.Tile;
+							faction.m_orders.Add(os);
+						}
 					}
 				}
 			}
