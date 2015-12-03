@@ -1092,6 +1092,17 @@ public class WorldGridScript : MonoBehaviour {
 				}
 
 				m_tiles[x,y].SetNeighbours(neighbours.ToArray());
+
+				foreach(FactionScript faction in m_factions)
+				{
+					if(m_tiles[x, y].Faction == faction && m_tiles[x, y].Type == TileTypes.Castle)
+					{
+						if(!faction.m_castles.Contains(m_tiles[x, y]))
+						{
+							faction.m_castles.Add(m_tiles[x, y]);
+						}
+					}
+				}
 			}
 		}
 	}
@@ -1118,6 +1129,75 @@ public class WorldGridScript : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 	}
+
+	void UpdateCastles()
+	{
+		foreach(FactionScript faction in m_factions)
+		{
+			foreach(WorldTileScript castle in faction.m_castles)
+			{
+				List<WorldTileScript> openList = new List<WorldTileScript>();
+				List<WorldTileScript> closedList = new List<WorldTileScript>();
+				openList.Add(castle);
+				bool[,] tested = new bool[TileCountX,TileCountY];
+
+				while(openList.Count > 0)
+				{
+					WorldTileScript tile = openList[openList.Count - 1];
+					openList.RemoveAt(openList.Count - 1);
+
+					if(!tested[tile.x, tile.y])
+					{
+						tested[tile.x, tile.y] = true;
+
+						if(tile.Faction == castle.Faction)
+						{
+							closedList.Add(tile);
+							foreach(WorldTileScript neighbour in tile.GetNeighbours())
+							{
+								if(!tested[neighbour.x, neighbour.y])
+								{
+									openList.Add(neighbour);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	void UpdateColours()
+	{
+		List<List<WorldTileScript>> factionControlTiles = new List<List<WorldTileScript>>();
+
+		foreach(FactionScript faction in m_factions)
+		{
+			List<WorldTileScript> controlTiles = new List<WorldTileScript>();
+			foreach(WorldTileScript tile in faction.m_castles)
+			{
+				controlTiles.Add(tile);
+			}
+			foreach(ArmyCounter army in faction.m_armies)
+			{
+				controlTiles.Add(army.Tile);
+			}
+			factionControlTiles.Add(controlTiles);
+		}
+
+		List<List<WorldTileScript>> factionTiles;
+
+		StaticHelpers.FloodFill(TileCountX, TileCountY, factionControlTiles, out factionTiles);
+
+		for(int i = 0; i < m_factions.Count; i++)
+		{
+			foreach(WorldTileScript tile in factionTiles[i])
+			{
+				tile.gameObject.gameObject.GetComponent<Renderer>().material.color = m_factions[i].FactionColor;
+				tile.Faction = m_factions[i];
+			}
+		}
+	}
 	
 	// Update is called once per frame
 	void Update () {
@@ -1137,6 +1217,9 @@ public class WorldGridScript : MonoBehaviour {
 					m_currentFaction = 0;
 					m_factionChanging = false;
 				}
+			
+			UpdateColours();
+			UpdateCastles();
 			}
 		}
 	}

@@ -110,7 +110,7 @@ public class MenuItems
 					redMaterial.color = Color.red;
 				}
 
-				castTile.gameObject.GetComponent<Renderer>().material = redMaterial;
+				//castTile.gameObject.GetComponent<Renderer>().material = redMaterial;
 			}
 			else
 			{
