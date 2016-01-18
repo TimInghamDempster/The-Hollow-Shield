@@ -1193,7 +1193,6 @@ public class WorldGridScript : MonoBehaviour {
 		{
 			foreach(WorldTileScript tile in factionTiles[i])
 			{
-				tile.gameObject.gameObject.GetComponent<Renderer>().material.color = m_factions[i].FactionColor;
 				tile.Faction = m_factions[i];
 			}
 		}

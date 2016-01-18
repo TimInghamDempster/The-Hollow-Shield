@@ -69,7 +69,6 @@ public class OrdersCourierScript : MonoBehaviour {
 						m_pathPlanner.DistanceAlongPath++;
 						
 						m_targetPos = m_pathPlanner.Path[m_pathPlanner.DistanceAlongPath].transform.position;
-						m_targetPos.y = 5.0f;
 						m_movementTargetTile = m_pathPlanner.Path[m_pathPlanner.DistanceAlongPath];
 					}
 					else
@@ -84,7 +83,6 @@ public class OrdersCourierScript : MonoBehaviour {
 			
 			transform.position += delta;
 			var tempPos = transform.position;
-			tempPos.y = 5.0f;
 			transform.position = tempPos;//Need to do this properly sometime
 		}
 	}
@@ -99,7 +97,6 @@ public class OrdersCourierScript : MonoBehaviour {
 				m_pathPlanner.DistanceAlongPath++;
 				
 				m_targetPos = m_pathPlanner.Path[m_pathPlanner.DistanceAlongPath].transform.position;
-				m_targetPos.y = 5.0f;
 				m_movementTargetTile = m_pathPlanner.Path[m_pathPlanner.DistanceAlongPath];
 			}
 			else
