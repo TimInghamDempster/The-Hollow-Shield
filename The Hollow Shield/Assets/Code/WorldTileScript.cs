@@ -25,6 +25,13 @@ public enum SeedTileTypes
 	Water
 }
 
+public class CastleComponent
+{
+	public int numTroops;
+	public int numArchers;
+	public int numCavalry;
+}
+
 public class WorldTileScript : MonoBehaviour {
 
 	public WorldGridScript worldGrid;
@@ -43,6 +50,10 @@ public class WorldTileScript : MonoBehaviour {
 
 	public ArmyCounter Army { get {return m_army; } }
 
+	public bool IsUnitInUse;
+
+	int respawnTimer;
+
 	// Use this for initialization
 	void Start () {
 
@@ -55,6 +66,23 @@ public class WorldTileScript : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 	
+	}
+
+	public void UnitDied()
+	{
+		respawnTimer = 10;
+	}
+
+	public void EndTurn()
+	{
+		if(respawnTimer > 0)
+		{
+			respawnTimer--;
+			if(respawnTimer == 0)
+			{
+				IsUnitInUse = false;
+			}
+		}
 	}
 
 	public void SetMesh(Mesh mesh, Material material)
@@ -84,8 +112,6 @@ public class WorldTileScript : MonoBehaviour {
 
 	public void ArmyEnter(ArmyCounter army)
 	{
-		Faction = army.Faction;
-		UpdateColour();
 		m_army = army;
 	}
 
@@ -100,21 +126,23 @@ public class WorldTileScript : MonoBehaviour {
 		{
 			this.gameObject.GetComponent<Renderer>().material.color = Color.yellow;
 			return;
-		}
 
-		if(!IsPassable)
-		{
-			this.gameObject.GetComponent<Renderer>().material.color = (Color.red * 0.1f) + (Color.white * 0.9f);
-			return;
-		}
-
-		if(Faction)
-		{
-			this.gameObject.GetComponent<Renderer>().material.color = Faction.FactionColor;
+			if(!IsPassable)
+			{
+				this.gameObject.GetComponent<Renderer>().material.color = (Color.red * 0.1f) + (Color.white * 0.9f);
+				return;
+			}
 		}
 		else
 		{
-			this.gameObject.GetComponent<Renderer>().material.color = Color.white;
+			if(Type == TileTypes.Castle)
+			{
+				GetComponent<Renderer>().material.color = Faction.FactionColor;
+			}
+			else
+			{
+				GetComponent<Renderer>().material.color = Color.white;
+			}
 		}
 	}
 
@@ -125,6 +153,80 @@ public class WorldTileScript : MonoBehaviour {
 		for(int i = 0; i < neighbours.Length; i++)
 		{
 			m_neighbours[i] = neighbours[i];
+		}
+	}
+
+	void OnMouseEnter () 
+	{
+		if(Type == TileTypes.Castle)
+		{
+			CastleScript castleScript = GetComponents<CastleScript>()[0];//Gaurunteed to be 1 and only 1
+
+			foreach(var tile in castleScript.infantryRecruitmentTiles)
+			{
+				if(tile.IsUnitInUse)
+				{
+					tile.GetComponent<MeshRenderer>().material.color = Faction.FactionColor * 0.5f;
+				}
+				else
+				{
+					tile.GetComponent<MeshRenderer>().material.color = Faction.FactionColor;
+				}
+			}
+
+			foreach(var tile in castleScript.archeryRecruitmentTiles)
+			{
+				if(tile.IsUnitInUse)
+				{
+					tile.GetComponent<MeshRenderer>().material.color = Faction.FactionColor * 0.5f;
+				}
+				else
+				{
+					tile.GetComponent<MeshRenderer>().material.color = Faction.FactionColor;
+				}
+			}
+
+			foreach(var tile in castleScript.cavalryRecruitmentTiles)
+			{
+				if(tile.IsUnitInUse)
+				{
+					tile.GetComponent<MeshRenderer>().material.color = Faction.FactionColor * 0.5f;
+				}
+				else
+				{
+					tile.GetComponent<MeshRenderer>().material.color = Faction.FactionColor;
+				}
+			}
+
+			foreach(var tile in castleScript.uselessTerritoryTiles)
+			{
+				tile.GetComponent<MeshRenderer>().material.color = Faction.FactionColor * 0.5f;
+			}
+		}
+	}
+
+	void OnMouseExit()
+	{
+		
+		if(Type == TileTypes.Castle)
+		{
+			CastleScript castleScript = GetComponents<CastleScript>()[0];//Gaurunteed to be 1 and only 1
+			foreach(var tile in castleScript.infantryRecruitmentTiles)
+			{
+				tile.UpdateColour();
+			}
+			foreach(var tile in castleScript.archeryRecruitmentTiles)
+			{
+				tile.UpdateColour();
+			}
+			foreach(var tile in castleScript.cavalryRecruitmentTiles)
+			{
+				tile.UpdateColour();
+			}
+			foreach(var tile in castleScript.uselessTerritoryTiles)
+			{
+				tile.UpdateColour();
+			}
 		}
 	}
 

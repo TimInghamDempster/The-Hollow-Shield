@@ -109,6 +109,12 @@ public class WorldGridScript : MonoBehaviour {
 	public Mesh MountainMesh;
 	public Material MountainMaterial;
 
+	public Mesh ArcheryCounterMesh;
+	public Mesh InfantryCounterMesh;
+	public Mesh CavalryCounterMesh;
+	public Mesh ShockTroopCounterMesh;
+	public Material CounterMaterial;
+
 	
 	WorldTileScript[,] m_tiles;
 	List<WorldTileScript> m_collisionFaults;
@@ -1099,12 +1105,23 @@ public class WorldGridScript : MonoBehaviour {
 					{
 						if(!faction.m_castles.Contains(m_tiles[x, y]))
 						{
-							faction.m_castles.Add(m_tiles[x, y]);
+							WorldTileScript tile = m_tiles[x,y];
+							faction.m_castles.Add(tile);
+							CastleScript castle = tile.gameObject.AddComponent<CastleScript>();
+							castle.Initialise(this);
+
+							MeshFilter meshFilter = tile.gameObject.GetComponent<MeshFilter>();
+							meshFilter.mesh = tile.Faction.FactionCastleMesh;
+							MeshRenderer meshRenderer = tile.gameObject.GetComponent<MeshRenderer>();
+							meshRenderer.material = tile.Faction.FactionCastleMaterial;
+							meshRenderer.material.color = tile.Faction.FactionColor;
 						}
 					}
 				}
 			}
 		}
+		UpdateTerritory();
+		UpdateCastles();
 	}
 
 	public void EndTurn ()
@@ -1136,8 +1153,10 @@ public class WorldGridScript : MonoBehaviour {
 		{
 			foreach(WorldTileScript castle in faction.m_castles)
 			{
+				CastleScript castleScript = castle.GetComponents<CastleScript>()[0];//Gaurunteed to be 1 and only 1
+				castleScript.ClearLists();
+
 				List<WorldTileScript> openList = new List<WorldTileScript>();
-				List<WorldTileScript> closedList = new List<WorldTileScript>();
 				openList.Add(castle);
 				bool[,] tested = new bool[TileCountX,TileCountY];
 
@@ -1152,22 +1171,52 @@ public class WorldGridScript : MonoBehaviour {
 
 						if(tile.Faction == castle.Faction)
 						{
-							closedList.Add(tile);
-							foreach(WorldTileScript neighbour in tile.GetNeighbours())
+							bool tileTypeCounts = false;
+
+							if(tile.Type == TileTypes.ArcherySchool)
 							{
-								if(!tested[neighbour.x, neighbour.y])
+								castleScript.archeryRecruitmentTiles.Add(tile);
+								tileTypeCounts = true;
+							}
+							else if(tile.Type == TileTypes.HuntingLodge)
+							{
+								castleScript.cavalryRecruitmentTiles.Add(tile);
+								tileTypeCounts = true;
+							}
+							else if(tile.Type == TileTypes.CombatSchool)
+							{
+
+							}
+							else if(tile.Type == TileTypes.Grass || tile.Type == TileTypes.Sand || tile.Type == TileTypes.Snow)
+							{
+								castleScript.infantryRecruitmentTiles.Add(tile);
+								tileTypeCounts = true;
+							}
+							else if(tile.Type == TileTypes.Castle || tile.Type == TileTypes.Water || tile.Type == TileTypes.Forest)
+							{
+								castleScript.uselessTerritoryTiles.Add(tile);
+								tileTypeCounts = true;
+							}
+
+							if(tileTypeCounts == true)
+							{
+								foreach(WorldTileScript neighbour in tile.GetNeighbours())
 								{
-									openList.Add(neighbour);
+									if(!tested[neighbour.x, neighbour.y])
+									{
+										openList.Add(neighbour);
+									}
 								}
 							}
 						}
 					}
 				}
+				castleScript.UpdateMarkerHeights();
 			}
 		}
 	}
 
-	void UpdateColours()
+	void UpdateTerritory()
 	{
 		List<List<WorldTileScript>> factionControlTiles = new List<List<WorldTileScript>>();
 
@@ -1215,9 +1264,17 @@ public class WorldGridScript : MonoBehaviour {
 				{
 					m_currentFaction = 0;
 					m_factionChanging = false;
+
+					for(int y = 0; y < TileCountY; y++)
+					{
+						for(int x = 0; x < TileCountX; x++)
+						{
+							m_tiles[x,y].EndTurn();
+						}
+					}
 				}
 			
-			UpdateColours();
+			UpdateTerritory();
 			UpdateCastles();
 			}
 		}
