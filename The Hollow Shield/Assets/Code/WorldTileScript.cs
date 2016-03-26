@@ -54,6 +54,10 @@ public class WorldTileScript : MonoBehaviour {
 
 	int respawnTimer;
 
+	bool mouseClicked;
+	float lastClickTime;
+	bool mouseUp;
+
 	// Use this for initialization
 	void Start () {
 
@@ -64,8 +68,19 @@ public class WorldTileScript : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	void Update () {
-	
+	void Update () 
+	{
+		if(mouseClicked)
+		{
+			if(Time.time - lastClickTime > worldGrid.DoubleClickTime)
+			{
+				mouseClicked = false;
+				if(mouseUp)
+				{
+					Clicked();
+				}
+			}
+		}	
 	}
 
 	public void UnitDied()
@@ -230,7 +245,38 @@ public class WorldTileScript : MonoBehaviour {
 		}
 	}
 
+	void Clicked()
+	{
+		int a = 0;
+	}
+
+	void DoubleClicked()
+	{
+		if(Type == TileTypes.Castle || Army != null)
+		{
+			Camera camera = FindObjectOfType<Camera>();
+			UltimateOrbitCamera orbitCam = camera.GetComponent<UltimateOrbitCamera>();
+			orbitCam.target = this.transform;
+		}
+	}
+
 	void OnMouseDown()
 	{
+		if(mouseClicked)
+		{
+			DoubleClicked();
+			mouseClicked = false;
+		}
+		else
+		{
+			mouseClicked = true;
+		}
+		lastClickTime = Time.time;
+		mouseUp = false;
+	}
+
+	void OnMouseUp()
+	{
+		mouseUp = true;
 	}
 }

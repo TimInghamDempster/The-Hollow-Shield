@@ -115,6 +115,8 @@ public class WorldGridScript : MonoBehaviour {
 	public Mesh ShockTroopCounterMesh;
 	public Material CounterMaterial;
 
+	public float DoubleClickTime;
+
 	
 	WorldTileScript[,] m_tiles;
 	List<WorldTileScript> m_collisionFaults;

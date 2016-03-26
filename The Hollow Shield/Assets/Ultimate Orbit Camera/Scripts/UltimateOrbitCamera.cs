@@ -4,6 +4,8 @@ using System.Collections;
 public class UltimateOrbitCamera : MonoBehaviour {
 
 	public Transform target;
+	public Transform internalTarget;
+	public float flightSpeed = 1.0f;
 
 	public float distance = 10f;
 	public float maxDistance = 25f;
@@ -136,13 +138,34 @@ public class UltimateOrbitCamera : MonoBehaviour {
 		_transform.Rotate(new Vector3(0f,initialAngleX,0f),Space.World);
 		_transform.Rotate(new Vector3(initialAngleY,0f,0f),Space.Self);
 
-		position = _transform.rotation * new Vector3(0.0f, 0.0f, -distance) + target.position;
+		if(transform != null)
+		{
+			internalTarget.position = target.position;
+		}
+
+		position = _transform.rotation * new Vector3(0.0f, 0.0f, -distance) + internalTarget.position;
 	}
 
 	void Update () 
 	{
-		if(target != null)
+		if(internalTarget != null)
 		{
+			if(target != null)
+			{
+				if(internalTarget.position != target.position)
+				{
+					Vector3 delta = target.position - internalTarget.position;
+					if(delta.magnitude < flightSpeed)
+					{
+						internalTarget.position = target.position;
+					}
+					else
+					{
+						internalTarget.position += delta.normalized * flightSpeed;
+					}
+				}
+			}
+
 			#region Input
 			if(autoRotateOn)
 			{
@@ -274,7 +297,7 @@ public class UltimateOrbitCamera : MonoBehaviour {
 
 			if(cameraCollision)
 			{
-				ray = new Ray(target.position,(_transform.position - target.position).normalized);
+				ray = new Ray(internalTarget.position,(_transform.position - internalTarget.position).normalized);
 				if (Physics.SphereCast(ray.origin, collisionRadius, ray.direction, out hit, distance))
 				{
 					distance = hit.distance;
@@ -282,7 +305,7 @@ public class UltimateOrbitCamera : MonoBehaviour {
 			}
 			#endregion
 
-			position = _transform.rotation * new Vector3(0.0f, 0.0f, -distance) + target.position;
+			position = _transform.rotation * new Vector3(0.0f, 0.0f, -distance) + internalTarget.position;
 			_transform.position = position;
 			if(!SpinEnabled || !spinning)
 				xVelocity *= dampeningX;

@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using UnityEditor;
 
@@ -25,7 +25,8 @@ public class UltimateOrbitCameraEditor : Editor
 	{
 		EditorGUILayout.Separator();
 
-		myTarget.target = EditorGUILayout.ObjectField("Target", myTarget.target, typeof(Transform)) as Transform;
+		myTarget.internalTarget = EditorGUILayout.ObjectField("Target", myTarget.internalTarget, typeof(Transform)) as Transform;
+		myTarget.flightSpeed = EditorGUILayout.FloatField("Flight Speed", myTarget.flightSpeed);
 		m_object.Update();
 		EditorGUILayout.Separator();
 		
