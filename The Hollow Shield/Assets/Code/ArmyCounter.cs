@@ -248,7 +248,7 @@ public class ArmyCounter : MonoBehaviour {
 	{
 		if(!m_selected)
 		{
-			m_camera = GameObject.Find("FirstPersonCharacter").GetComponent<Camera>();
+			m_camera = FindObjectOfType<Camera>();
 			m_positionWhenPickedUp = transform.position;
 			m_selected = true;
 			m_latched = true;
