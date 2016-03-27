@@ -200,7 +200,7 @@ public class ArmyCounter : MonoBehaviour {
 
 	void OnMouseDown()
 	{
-		if(!m_selected)
+		if(!m_selected && Faction == m_worldGrid.PlayerFaction)
 		{
 			m_positionWhenPickedUp = transform.position;
 			m_selected = true;
