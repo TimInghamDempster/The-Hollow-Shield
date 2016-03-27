@@ -1,11 +1,14 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class ArmyCounter : MonoBehaviour {
 
 	public float HoverPlane;
 	public FactionScript Faction;
 	public Transform OrdersPrefab;
+
+	public List<WorldTileScript> Territory;
 
 	bool m_selected;
 	bool m_latched;
@@ -70,6 +73,7 @@ public class ArmyCounter : MonoBehaviour {
 				m_tile.ArmyEnter(this);
 			}
 		}
+		Territory = new List<WorldTileScript>();
 	}
 	
 	// Update is called once per frame
@@ -179,11 +183,19 @@ public class ArmyCounter : MonoBehaviour {
 				m_pathPlanner.HighlightPath();
 			}
 		}
+		foreach(WorldTileScript tile in Territory)
+		{
+			tile.FactionHighlight = true;
+		}
 	}
 
 	void OnMouseExit()
 	{
 		m_pathPlanner.UnHighlightPath();
+		foreach(WorldTileScript tile in Territory)
+		{
+			tile.FactionHighlight = false;
+		}
 	}
 
 	void OnMouseDown()

@@ -1124,6 +1124,7 @@ public class WorldGridScript : MonoBehaviour {
 		}
 		UpdateTerritory();
 		UpdateCastles();
+		UpdateArmies();
 	}
 
 	public void EndTurn ()
@@ -1218,6 +1219,58 @@ public class WorldGridScript : MonoBehaviour {
 		}
 	}
 
+	void UpdateArmies()
+	{
+		foreach(FactionScript faction in m_factions)
+		{
+			foreach(ArmyCounter army in faction.m_armies)
+			{
+				army.Territory.Clear();
+				if(army.Tile != null)
+				{
+					WorldTileScript armyTile = army.Tile;
+					
+					List<WorldTileScript> openList = new List<WorldTileScript>();
+					openList.Add(armyTile);
+					bool[,] tested = new bool[TileCountX,TileCountY];
+					
+					while(openList.Count > 0)
+					{
+						WorldTileScript tile = openList[openList.Count - 1];
+						openList.RemoveAt(openList.Count - 1);
+						
+						if(!tested[tile.x, tile.y])
+						{
+							tested[tile.x, tile.y] = true;
+							
+							if(tile.Faction == armyTile.Faction)
+							{
+								bool tileTypeCounts = false;
+								
+								if(tile.Type == TileTypes.Grass || tile.Type == TileTypes.Sand || tile.Type == TileTypes.Snow || tile.Type == TileTypes.Castle || tile.Type == TileTypes.Water || tile.Type == TileTypes.Forest|| tile.Type == TileTypes.ArcherySchool || tile.Type == TileTypes.HuntingLodge || tile.Type == TileTypes.CombatSchool)
+								{
+									army.Territory.Add(tile);
+									tileTypeCounts = true;
+								}
+								
+								if(tileTypeCounts == true)
+								{
+									foreach(WorldTileScript neighbour in tile.GetNeighbours())
+									{
+										if(!tested[neighbour.x, neighbour.y])
+										{
+											openList.Add(neighbour);
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
 	void UpdateTerritory()
 	{
 		List<List<WorldTileScript>> factionControlTiles = new List<List<WorldTileScript>>();
@@ -1276,8 +1329,9 @@ public class WorldGridScript : MonoBehaviour {
 					}
 				}
 			
-			UpdateTerritory();
-			UpdateCastles();
+				UpdateTerritory();
+				UpdateCastles();
+				UpdateArmies();
 			}
 		}
 	}
