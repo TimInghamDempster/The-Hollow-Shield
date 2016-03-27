@@ -7,7 +7,6 @@ public class ArmyCounter : MonoBehaviour {
 	public FactionScript Faction;
 	public Transform OrdersPrefab;
 
-	Camera m_camera;
 	bool m_selected;
 	bool m_latched;
 	Vector3 m_positionWhenPickedUp;
@@ -15,8 +14,6 @@ public class ArmyCounter : MonoBehaviour {
 	WorldTileScript m_tile;
 
 	WorldTileScript m_targetTile;
-
-	WorldTileScript m_hoverTile;
 	WorldPathPlanner m_pathPlanner;
 
 	float m_xBound;
@@ -80,45 +77,8 @@ public class ArmyCounter : MonoBehaviour {
 	
 		if(m_selected)
 		{
-			Transform cameraTransform = m_camera.gameObject.transform;
-
-			float deltaY = cameraTransform.position.y - HoverPlane;
-
-			float stepY = Mathf.Max(cameraTransform.forward.y, cameraTransform.forward.y * -1.0f);
-
-			float dist = deltaY / stepY;
-
-			Vector3 newPos = cameraTransform.position + (cameraTransform.forward * dist);
-
-			newPos.x = Mathf.Clamp(newPos.x, 0.0f, m_xBound);
-			newPos.z = Mathf.Clamp(newPos.z, 0.0f, m_yBound);
-			newPos.y = HoverPlane;
-
-			RaycastHit tileHit;
-			bool hit = Physics.Raycast(newPos, new Vector3(0.0f, -1.0f, 0.0f), out tileHit, 2.0f * HoverPlane);
-
-			if(hit)
-			{
-				WorldTileScript tile = tileHit.collider.gameObject.GetComponent<WorldTileScript>();
-				if(tile && tile != m_hoverTile)
-				{
-					if(m_hoverTile)
-					{
-						if(m_hoverTile.IsPassable)
-						{
-							m_hoverTile.UnHighlight();
-						}
-					}
-
-					if(tile.IsPassable)
-					{
-						tile.Highlight();
-					}
-
-					m_hoverTile = tile;
-				}
-			}
-
+			Vector3 newPos = m_worldGrid.hoverTile.transform.position;
+			newPos.y += HoverPlane;
 			transform.position = newPos;
 
 			if(Input.GetMouseButtonUp(0))
@@ -130,22 +90,13 @@ public class ArmyCounter : MonoBehaviour {
 			{
 				m_selected = false;
 				transform.position = m_positionWhenPickedUp;
-				
-				if(m_hoverTile)
-				{
-					if(m_hoverTile.IsPassable)
-					{
-						m_hoverTile.UnHighlight();
-					}
-				}
 
 				if(Faction.HomeArmy == this)
 				{
 					if(m_tile &&
-					   m_hoverTile &&
-					   m_hoverTile.IsPassable)
+					   m_worldGrid.hoverTile.IsPassable)
 					{
-						SetObjective(m_hoverTile);
+						SetObjective(m_worldGrid.hoverTile);
 					}
 				}
 				else
@@ -154,7 +105,7 @@ public class ArmyCounter : MonoBehaviour {
 					Transform orders = (Transform)Instantiate(OrdersPrefab, ordersOrigin.position, ordersOrigin.rotation);
 					OrdersCourierScript os = orders.gameObject.GetComponent<OrdersCourierScript>();
 					os.TargetArmy = this;
-					os.TargetArmyNewObjective = m_hoverTile;
+					os.TargetArmyNewObjective = m_worldGrid.hoverTile;
 					os.Faction = Faction;
 					os.Tile = Faction.HomeArmy.Tile;
 					Faction.m_orders.Add(os);
@@ -219,15 +170,6 @@ public class ArmyCounter : MonoBehaviour {
 			{
 				m_selected = false;
 				transform.position = m_positionWhenPickedUp;
-
-				if(m_hoverTile)
-				{
-					if(m_hoverTile.IsPassable)
-					{
-						m_hoverTile.UnHighlight();
-					}
-				}
-
 			}
 		}
 		else
@@ -248,7 +190,6 @@ public class ArmyCounter : MonoBehaviour {
 	{
 		if(!m_selected)
 		{
-			m_camera = FindObjectOfType<Camera>();
 			m_positionWhenPickedUp = transform.position;
 			m_selected = true;
 			m_latched = true;
