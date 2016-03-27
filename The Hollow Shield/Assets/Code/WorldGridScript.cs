@@ -116,7 +116,7 @@ public class WorldGridScript : MonoBehaviour {
 	public Material CounterMaterial;
 
 	public float DoubleClickTime;
-
+	public WorldTileScript hoverTile;
 	
 	WorldTileScript[,] m_tiles;
 	List<WorldTileScript> m_collisionFaults;

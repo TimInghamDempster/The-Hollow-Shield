@@ -45,6 +45,7 @@ public class WorldTileScript : MonoBehaviour {
 	public TileTypes Type;
 
 	bool m_isHighlighted;
+	public bool FactionHighlight;
 
 	ArmyCounter m_army;
 
@@ -80,7 +81,8 @@ public class WorldTileScript : MonoBehaviour {
 					Clicked();
 				}
 			}
-		}	
+		}
+		UpdateColour();
 	}
 
 	public void UnitDied()
@@ -116,13 +118,13 @@ public class WorldTileScript : MonoBehaviour {
 	public void Highlight()
 	{
 		m_isHighlighted = true;
-		UpdateColour();
+		//UpdateColour();
 	}
 
 	public void UnHighlight()
 	{
 		m_isHighlighted = false;
-		UpdateColour();
+		//UpdateColour();
 	}
 
 	public void ArmyEnter(ArmyCounter army)
@@ -137,7 +139,7 @@ public class WorldTileScript : MonoBehaviour {
 
 	void UpdateColour()
 	{
-		if(m_isHighlighted)
+		if(m_isHighlighted || worldGrid.hoverTile == this)
 		{
 			this.gameObject.GetComponent<Renderer>().material.color = Color.yellow;
 			return;
@@ -147,6 +149,10 @@ public class WorldTileScript : MonoBehaviour {
 				this.gameObject.GetComponent<Renderer>().material.color = (Color.red * 0.1f) + (Color.white * 0.9f);
 				return;
 			}
+		}
+		else if(FactionHighlight)
+		{
+			gameObject.GetComponent<Renderer>().material.color = Faction.FactionColor;
 		}
 		else
 		{
@@ -179,45 +185,25 @@ public class WorldTileScript : MonoBehaviour {
 
 			foreach(var tile in castleScript.infantryRecruitmentTiles)
 			{
-				if(tile.IsUnitInUse)
-				{
-					tile.GetComponent<MeshRenderer>().material.color = Faction.FactionColor * 0.5f;
-				}
-				else
-				{
-					tile.GetComponent<MeshRenderer>().material.color = Faction.FactionColor;
-				}
+				tile.FactionHighlight = true;
 			}
 
 			foreach(var tile in castleScript.archeryRecruitmentTiles)
 			{
-				if(tile.IsUnitInUse)
-				{
-					tile.GetComponent<MeshRenderer>().material.color = Faction.FactionColor * 0.5f;
-				}
-				else
-				{
-					tile.GetComponent<MeshRenderer>().material.color = Faction.FactionColor;
-				}
+				tile.FactionHighlight = true;
 			}
 
 			foreach(var tile in castleScript.cavalryRecruitmentTiles)
 			{
-				if(tile.IsUnitInUse)
-				{
-					tile.GetComponent<MeshRenderer>().material.color = Faction.FactionColor * 0.5f;
-				}
-				else
-				{
-					tile.GetComponent<MeshRenderer>().material.color = Faction.FactionColor;
-				}
+				tile.FactionHighlight = true;
 			}
 
 			foreach(var tile in castleScript.uselessTerritoryTiles)
 			{
-				tile.GetComponent<MeshRenderer>().material.color = Faction.FactionColor * 0.5f;
+				tile.FactionHighlight = true;
 			}
 		}
+		worldGrid.hoverTile = this;
 	}
 
 	void OnMouseExit()
@@ -228,19 +214,19 @@ public class WorldTileScript : MonoBehaviour {
 			CastleScript castleScript = GetComponents<CastleScript>()[0];//Gaurunteed to be 1 and only 1
 			foreach(var tile in castleScript.infantryRecruitmentTiles)
 			{
-				tile.UpdateColour();
+				tile.FactionHighlight = false;
 			}
 			foreach(var tile in castleScript.archeryRecruitmentTiles)
 			{
-				tile.UpdateColour();
+				tile.FactionHighlight = false;
 			}
 			foreach(var tile in castleScript.cavalryRecruitmentTiles)
 			{
-				tile.UpdateColour();
+				tile.FactionHighlight = false;
 			}
 			foreach(var tile in castleScript.uselessTerritoryTiles)
 			{
-				tile.UpdateColour();
+				tile.FactionHighlight = false;
 			}
 		}
 	}
