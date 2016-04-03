@@ -1150,6 +1150,21 @@ public class WorldGridScript : MonoBehaviour {
 	void Start () {
 	}
 
+	public void ClearSelected()
+	{
+		foreach(FactionScript faction in m_factions)
+		{
+			foreach(WorldTileScript castle in faction.m_castles)
+			{
+				CastleScript castleScript = castle.GetComponent<CastleScript>();
+				castleScript.Deselect();
+			}
+			foreach(ArmyCounter army in faction.m_armies)
+			{
+			}
+		}
+	}
+
 	void UpdateCastles()
 	{
 		foreach(FactionScript faction in m_factions)

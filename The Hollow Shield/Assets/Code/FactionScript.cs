@@ -14,6 +14,9 @@ public class FactionScript : MonoBehaviour {
 	public Mesh FactionCastleMesh;
 	public Material FactionCastleMaterial;
 	public ArmyCounter HomeArmy;
+
+	public Mesh FactionArmyMesh;
+	public Material FactionArmyMaterial;
 	
 	// Use this for initialization
 	void Start () 
