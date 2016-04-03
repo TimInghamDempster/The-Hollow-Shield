@@ -47,5 +47,13 @@ public class HoverArmyScript : MonoBehaviour {
 		MeshFilter cavalryMeshFilter = m_cavalryCounter.AddComponent<MeshFilter>();
 		cavalryMeshRenderer.sharedMaterial = world.CounterMaterial;
 		cavalryMeshFilter.mesh = world.CavalryCounterMesh;
+
+		m_cavalryCounter.AddComponent<MeshCollider>();
+		m_infantryCounter.AddComponent<MeshCollider>();
+		m_archeryCounter.AddComponent<MeshCollider>();
+				
+		m_cavalryCounter.AddComponent<UnitSlider>();
+		m_infantryCounter.AddComponent<UnitSlider>();
+		m_archeryCounter.AddComponent<UnitSlider>();
 	}
 }
