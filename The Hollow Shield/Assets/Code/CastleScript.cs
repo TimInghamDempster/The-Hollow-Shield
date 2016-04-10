@@ -126,6 +126,7 @@ public class CastleScript : MonoBehaviour {
 			tile.worldGrid.ClearSelected();
 
 			m_selected = true;
+			gameObject.GetComponent<WorldTileScript>().Select();
 			gameObject.GetComponent<WorldTileScript>().Highlight();
 			m_hoverArmy.SetActive(true);
 		}
@@ -138,6 +139,7 @@ public class CastleScript : MonoBehaviour {
 	public void Deselect()
 	{
 		m_selected = false;
+		gameObject.GetComponent<WorldTileScript>().UnSelect();
 		gameObject.GetComponent<WorldTileScript>().UnHighlight();
 		m_hoverArmy.SetActive(false);
 	}

@@ -4,10 +4,11 @@ using System.Collections;
 public class UnitSlider : MonoBehaviour {
 
 	bool m_dragging;
+	float m_baseY;
 
 	// Use this for initialization
 	void Start () {
-	
+		m_baseY = transform.position.y;
 	}
 	
 	// Update is called once per frame
@@ -25,7 +26,7 @@ public class UnitSlider : MonoBehaviour {
 
 			Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(adjustedMousePos);
 
-			pos.y = mouseWorldPos.y;
+			pos.y = Mathf.Max(mouseWorldPos.y, m_baseY);
 			
 			transform.position = pos;
 		}

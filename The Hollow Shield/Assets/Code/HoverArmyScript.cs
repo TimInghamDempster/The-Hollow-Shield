@@ -7,6 +7,8 @@ public class HoverArmyScript : MonoBehaviour {
 	GameObject m_infantryCounter;
 	GameObject m_cavalryCounter;
 
+	CastleScript m_castle;
+
 	// Use this for initialization
 	void Start () {
 	
@@ -55,5 +57,7 @@ public class HoverArmyScript : MonoBehaviour {
 		m_cavalryCounter.AddComponent<UnitSlider>();
 		m_infantryCounter.AddComponent<UnitSlider>();
 		m_archeryCounter.AddComponent<UnitSlider>();
+
+		m_castle = castle;
 	}
 }

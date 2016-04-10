@@ -185,7 +185,7 @@ public class ArmyCounter : MonoBehaviour {
 		}
 		foreach(WorldTileScript tile in Territory)
 		{
-			tile.FactionHighlight = true;
+			tile.m_parentMouseOver = true;
 		}
 	}
 
@@ -194,7 +194,7 @@ public class ArmyCounter : MonoBehaviour {
 		m_pathPlanner.UnHighlightPath();
 		foreach(WorldTileScript tile in Territory)
 		{
-			tile.FactionHighlight = false;
+			tile.m_parentMouseOver = false;
 		}
 	}
 

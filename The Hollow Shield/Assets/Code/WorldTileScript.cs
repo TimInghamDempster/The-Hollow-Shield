@@ -59,13 +59,17 @@ public class WorldTileScript : MonoBehaviour {
 	float lastClickTime;
 	bool mouseUp;
 
+	bool m_mouseOver;
+	bool m_parentSelected;
+	public bool m_parentMouseOver;
+
 	// Use this for initialization
 	void Start () {
 
 		worldGrid = GameObject.Find("WorldGrid").GetComponent<WorldGridScript>();
 		worldGrid.AddTile(x,y,this);
 
-		UpdateColour();
+		//UpdateColour();
 	}
 	
 	// Update is called once per frame
@@ -118,13 +122,13 @@ public class WorldTileScript : MonoBehaviour {
 	public void Highlight()
 	{
 		m_isHighlighted = true;
-		//UpdateColour();
+		UpdateColour();
 	}
 
 	public void UnHighlight()
 	{
 		m_isHighlighted = false;
-		//UpdateColour();
+		UpdateColour();
 	}
 
 	public void ArmyEnter(ArmyCounter army)
@@ -139,18 +143,12 @@ public class WorldTileScript : MonoBehaviour {
 
 	void UpdateColour()
 	{
-		if(m_isHighlighted || worldGrid.hoverTile == this)
+		if(m_isHighlighted || m_mouseOver)
 		{
 			this.gameObject.GetComponent<Renderer>().material.color = Color.yellow;
 			return;
-
-			if(!IsPassable)
-			{
-				this.gameObject.GetComponent<Renderer>().material.color = (Color.red * 0.1f) + (Color.white * 0.9f);
-				return;
-			}
 		}
-		else if(FactionHighlight)
+		else if(m_parentSelected || m_parentMouseOver)
 		{
 			gameObject.GetComponent<Renderer>().material.color = Faction.FactionColor;
 		}
@@ -177,63 +175,79 @@ public class WorldTileScript : MonoBehaviour {
 		}
 	}
 
-	void OnMouseEnter () 
+	void DoParentSelect(bool highlightOn)
 	{
 		if(Type == TileTypes.Castle)
 		{
 			CastleScript castleScript = GetComponents<CastleScript>()[0];//Gaurunteed to be 1 and only 1
-
 			foreach(var tile in castleScript.infantryRecruitmentTiles)
 			{
-				tile.FactionHighlight = true;
+				tile.m_parentSelected = highlightOn;
 			}
-
 			foreach(var tile in castleScript.archeryRecruitmentTiles)
 			{
-				tile.FactionHighlight = true;
+				tile.m_parentSelected = highlightOn;
 			}
-
 			foreach(var tile in castleScript.cavalryRecruitmentTiles)
 			{
-				tile.FactionHighlight = true;
+				tile.m_parentSelected = highlightOn;
 			}
-
 			foreach(var tile in castleScript.uselessTerritoryTiles)
 			{
-				tile.FactionHighlight = true;
+				tile.m_parentSelected = highlightOn;
 			}
 		}
+	}
+
+	void DoParentMouseover(bool highlightOn)
+	{
+		if(Type == TileTypes.Castle)
+		{
+			CastleScript castleScript = GetComponents<CastleScript>()[0];//Gaurunteed to be 1 and only 1
+			foreach(var tile in castleScript.infantryRecruitmentTiles)
+			{
+				tile.m_parentMouseOver = highlightOn;
+			}
+			foreach(var tile in castleScript.archeryRecruitmentTiles)
+			{
+				tile.m_parentMouseOver = highlightOn;
+			}
+			foreach(var tile in castleScript.cavalryRecruitmentTiles)
+			{
+				tile.m_parentMouseOver = highlightOn;
+			}
+			foreach(var tile in castleScript.uselessTerritoryTiles)
+			{
+				tile.m_parentMouseOver = highlightOn;
+			}
+		}
+	}
+
+	void OnMouseEnter () 
+	{
 		worldGrid.hoverTile = this;
+		m_mouseOver = true;
+		DoParentMouseover(true);
 	}
 
 	void OnMouseExit()
 	{
-		
-		if(Type == TileTypes.Castle)
-		{
-			CastleScript castleScript = GetComponents<CastleScript>()[0];//Gaurunteed to be 1 and only 1
-			foreach(var tile in castleScript.infantryRecruitmentTiles)
-			{
-				tile.FactionHighlight = false;
-			}
-			foreach(var tile in castleScript.archeryRecruitmentTiles)
-			{
-				tile.FactionHighlight = false;
-			}
-			foreach(var tile in castleScript.cavalryRecruitmentTiles)
-			{
-				tile.FactionHighlight = false;
-			}
-			foreach(var tile in castleScript.uselessTerritoryTiles)
-			{
-				tile.FactionHighlight = false;
-			}
-		}
+		m_mouseOver = false;
+		DoParentMouseover(false);
 	}
 
 	void Clicked()
 	{
-		int a = 0;
+	}
+
+	public void Select()
+	{
+		DoParentSelect(true);
+	}
+
+	public void UnSelect()
+	{
+		DoParentSelect(false);
 	}
 
 	void DoubleClicked()
