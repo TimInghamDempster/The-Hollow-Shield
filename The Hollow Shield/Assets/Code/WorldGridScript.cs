@@ -1191,12 +1191,12 @@ public class WorldGridScript : MonoBehaviour {
 						{
 							bool tileTypeCounts = false;
 
-							if(tile.Type == TileTypes.ArcherySchool)
+							if(tile.Type == TileTypes.ArcherySchool && !tile.IsUnitInUse)
 							{
 								castleScript.archeryRecruitmentTiles.Add(tile);
 								tileTypeCounts = true;
 							}
-							else if(tile.Type == TileTypes.HuntingLodge)
+							else if(tile.Type == TileTypes.HuntingLodge && !tile.IsUnitInUse)
 							{
 								castleScript.cavalryRecruitmentTiles.Add(tile);
 								tileTypeCounts = true;
@@ -1205,7 +1205,7 @@ public class WorldGridScript : MonoBehaviour {
 							{
 
 							}
-							else if(tile.Type == TileTypes.Grass || tile.Type == TileTypes.Sand || tile.Type == TileTypes.Snow)
+							else if((tile.Type == TileTypes.Grass || tile.Type == TileTypes.Sand || tile.Type == TileTypes.Snow) && !tile.IsUnitInUse)
 							{
 								castleScript.infantryRecruitmentTiles.Add(tile);
 								tileTypeCounts = true;

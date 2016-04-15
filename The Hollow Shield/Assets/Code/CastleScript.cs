@@ -115,7 +115,7 @@ public class CastleScript : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-	
+		UpdateMarkerHeights();
 	}
 
 	void OnMouseDown()

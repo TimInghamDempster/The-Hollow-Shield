@@ -150,7 +150,14 @@ public class WorldTileScript : MonoBehaviour {
 		}
 		else if(m_parentSelected || m_parentMouseOver)
 		{
-			gameObject.GetComponent<Renderer>().material.color = Faction.FactionColor;
+			if(!IsUnitInUse)
+			{
+				gameObject.GetComponent<Renderer>().material.color = Faction.FactionColor;
+			}
+			else
+			{
+				gameObject.GetComponent<Renderer>().material.color = Faction.FactionColor * 0.5f;
+			}
 		}
 		else
 		{

@@ -54,9 +54,13 @@ public class HoverArmyScript : MonoBehaviour {
 		m_infantryCounter.AddComponent<MeshCollider>();
 		m_archeryCounter.AddComponent<MeshCollider>();
 				
-		m_cavalryCounter.AddComponent<UnitSlider>();
-		m_infantryCounter.AddComponent<UnitSlider>();
-		m_archeryCounter.AddComponent<UnitSlider>();
+		UnitSlider cavalry = m_cavalryCounter.AddComponent<UnitSlider>();
+		UnitSlider infantry = m_infantryCounter.AddComponent<UnitSlider>();
+		UnitSlider archery = m_archeryCounter.AddComponent<UnitSlider>();
+
+		infantry.Init(castle.infantryRecruitmentTiles);
+		cavalry.Init(castle.cavalryRecruitmentTiles);
+		archery.Init(castle.archeryRecruitmentTiles);
 
 		m_castle = castle;
 	}
